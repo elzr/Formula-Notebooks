@@ -1,0 +1,400 @@
+
+// ABC_COL(cell_ref)
+=REGEXEXTRACT(ADDRESS(1,COLUMN(cell_ref)),"[A-Z]+")
+
+// ---------------------------------------------------------
+
+// _ABC_COL()
+=REGEXEXTRACT(ADDRESS(1,COLUMN()),"[A-Z]+")
+
+// ---------------------------------------------------------
+
+// NONBLANK_DAYS(output_col)
+=NONBLANK_ROWS(WEEK_RANGE, weekdayCol, output_col)
+
+=FILTER(
+  WEEK_RANGE(weekdayCol),
+  NOT(ISBLANK(
+    WEEK_RANGE(output_col))))
+// ---------------------------------------------------------
+
+// NONBLANK_ROWS(range, test_col, output_col)
+=FILTER(
+  range(output_col),
+  NOT(ISBLANK(
+    range(test_col))))
+
+=FILTER(
+  WEEK_RANGE(test_col),
+  NOT(ISBLANK(
+    WEEK_RANGE(output_col))))
+
+=FILTER(
+  INDEX(WEEK_RANGE("C"),,2),
+  NOT(ISBLANK(
+    INDEX(WEEK_RANGE("CD"),,1))))
+
+// ---------------------------------------------------------
+
+// DAY_CHART()
+=IFNA(SPARKLINE(
+    LAMBDA(Mins, 
+      FILTER(FLATTEN(Mins),FLATTEN(Mins) <> 0)
+    )(DAY_RANGE(gapMinsCol & sumMinsCol)),
+  dayChartOpts))
+
+=IFNA(SPARKLINE(
+    LAMBDA(Mins, 
+      FILTER(FLATTEN(Mins),FLATTEN(Mins) <> 0)
+    )(HOUR_RANGE("JK")),
+  dayChartOpts))
+  
+=IFNA(SPARKLINE(
+    FILTER(FLATTEN(HOUR_RANGE("JK")),FLATTEN(HOUR_RANGE("JK")) <> 0),
+  hourChartOpts))
+
+// ---------------------------------------------------------
+
+// BLANK_ROW_COUNT
+=ArrayFormula(
+    MATCH(TRUE,
+      NOT(ISBLANK(
+        INDIRECT(col&(ROW()+1)&":"&col))),
+    0)
+  )-1
+
+// ---------------------------------------------------------
+// NONBLANK_RANGE(test_col, output_col)
+=INDIRECT(
+  LEFT(output_col)
+  & (ROW()+1)
+  & ":"
+  & RIGHT(output_col)
+  & IFNA(
+      ROW()+BLANK_ROW_COUNT( test_col ),
+    ))
+
+
+// ---------------------------------------------------------
+// WEEK_RANGE(output_col)
+=NONBLANK_RANGE(weekdayCol, output_col)
+
+// ---------------------------------------------------------
+// WEEK_RANGE(output_col)
+=NONBLANK_RANGE(weekdayCol, output_col)
+// ---------------------------------------------------------
+
+// _DAY_RANGE(output_col)
+=NONBLANK_RANGE(weekdayCol, _ABC_COL())
+
+// ---------------------------------------------------------
+
+// DAY_RANGE(output_col)
+// My first Named Function in sheets! sat17sep2022
+// weekdayCol is an outside namedRange
+
+=NONBLANK_RANGE(weekdayCol, output_col)
+
+=INDIRECT(
+  LEFT(output_col)
+  & (ROW()+1)
+  & ":"
+  & RIGHT(output_col)
+  & IFNA(
+      ROW()+BLANK_ROW_COUNT( weekdayCol ),
+    ))
+
+=INDIRECT(
+  LEFT(output_col)
+  & (ROW()+1)
+  & ":"&RIGHT(output_col)
+  & IFNA(
+      (ROW()-1)+
+      ArrayFormula(
+        MATCH(TRUE,
+          NOT(ISBLANK(
+            INDIRECT(weekdayCol&(ROW()+1)&":"&weekdayCol))),
+        0)
+      ),
+    ))
+
+= "D"&(ROW()+1)&
+  ":D"&
+    IFNA(
+      ROW()+-1+
+      ArrayFormula(
+        match(TRUE,NOT(ISBLANK(INDIRECT("C"&(ROW()+1)&":C"))),0)
+      ),
+    )
+
+// ---------------------------------------------------------
+
+=IF(
+  OR(
+    E236<>"",
+    E236>TIMEVALUE(NOW())
+  ),
+    IF(F236<>"", 
+      F236-E236, 
+      NOW()-E236),
+  )
+
+// ---------------------------------------------------------
+=IF(
+  E238<>"",
+    IF(F238<>"", 
+      F238-E238,
+      IF(E238<TIMEVALUE(NOW()),
+        NOW()-E238, )
+    ),
+  )
+
+// ---------------------------------------------------------
+
+=ArrayFormula(
+  IF(C4:C<>"",
+    "F"&ROW(C4:C)&":"&ROW(C4:C),
+  ))
+
+=ArrayFormula(
+  IF(C4:C<>"",
+    SUM(INDIRECT("E"&ROW(C4:C)&":"&ROW(C4:C))),
+  ))
+
+// ---------------------------------------------------------
+=ArrayFormula(
+  IF(ABS(G2:G)<1,
+    IF(G2:G>0,
+      IF(G2:G*daysToMins>1000,
+        HOUR(G2:G)*60+MINUTE(G2:G), 
+        G2:G*daysToMins),
+      (CEILING(ABS(G2:G))+G2:G)*daysToMins)
+  ,))
+
+=ArrayFormula(
+  IF(ABS(G2:G)<1                              //date fraction
+    IF(G2:G>0,
+      IF(G2:G*daysToMins>1000,                //positive
+        HOUR(G2:G)*60+MINUTE(G2:G), 
+        G2:G*daysToMins),
+      (CEILING(ABS(G2:G))+G2:G)*daysToMins))  //negative
+  ,)
+
+// ---------------------------------------------------------
+
+// Conditional formatting:
+
+=AND(
+  NOT(D6), 
+  NOT(E6), 
+  NOT(F6), 
+  G6)
+
+=AND(NOT(D6), NOT(E6), F6)
+=AND(
+  NOT(D6),  //not above
+  NOT(E6),  //not above-next
+  NOT(F6),  //not above-next-next
+  G6)       //yes above-next-next-next
+
+// ---------------------------------------------------------
+
+=IFNA(
+  ROW()+-1+ArrayFormula(MATCH(TRUE, REGEXMATCH(INDIRECT("B"&(ROW()+1)&":B"),"^w\d+"),0)),
+  176)
+
+//Sessions code
+=FILTER(
+  INDIRECT("K124:K"&$A123),
+  ArrayFormula(
+    NOT(ISBLANK(INDIRECT("C"&(ROW()+1)&":C"&$A123
+    )))
+  ))
+
+//gets all the days in the week
+=ROW()+-1+ArrayFormula(MATCH(TRUE, REGEXMATCH(INDIRECT("B"&(ROW()+1)&":B"),"^w\d+"),0))
+
+= "D"&(ROW()+1)&
+  ":D"&
+    IFNA(
+      ROW()+-1+
+      ArrayFormula(
+        match(TRUE,NOT(ISBLANK(INDIRECT("C"&(ROW()+1)&":C"))),0)
+      ),
+      //empty to range until the end
+    )
+
+// ---------------------------------------------------------
+
+=IF(
+  NOT(ISBLANK(E4)),
+    SPARKLINE({E4,H4},{"charttype","bar";"color1","#ffd666";"color2","e67c73"}),
+  )
+
+// /* -------°º¤ø,¸¸,ø¤º°`°º¤ø,¸,ø¤°º¤ø,¸¸,ø¤º°`°º¤ø,¸------- */
+// Notch's streak formula
+
+=IF(
+  AND(NOT(E23),F23), 
+  ,
+  IF(E23, 
+    D24+1, 
+    IF(AND(NOT(ISBLANK(D24)),EQ(D24,0)),
+      0,
+      IF($A24,
+        D24+1, 
+  ))))
+
+
+//commented version
+=IF(
+  AND(NOT(E23),F23), // is above unchecked & above-right checked ? a gap in the streak
+  ,
+  IF(E23, // is above checked ?
+    D24+1, // return left + 1, you're on a streak
+    IF(AND(NOT(ISBLANK(D24)),EQ(D24,0)), // is left NOT blank & = 0? (you need both checks)
+      0, // carry the 0
+      IF($A24, //is extend enabled?
+        D24+1, // return left + 1, extend the streak
+  ))))
+
+
+
+  
+=DATEVALUE(AG5&"/"&AG4&"/2022")
+=INDEX(weekdays,WEEKDAY(AG2,2))
+29
+Aug
+TRUE
+"=IF(
+  AND(NOT(AG6),AH6),
+  ,
+  IF(AG6,
+    AE7+1,
+    IF(AND(NOT(ISBLANK(AE7)),EQ(AE7,0)),
+      0,
+      IF($A7,
+        AE7+1,
+  ))))"
+FALSE
+"=IF(
+  AND(NOT(AG8),AH8),
+  ,
+  IF(AG8,
+    AE9+1,
+    IF(AND(NOT(ISBLANK(AE9)),EQ(AE9,0)),
+      0,
+      IF($A9,
+        AE9+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG10),AH10),
+  ,
+  IF(AG10,
+    AE11+1,
+    IF(AND(NOT(ISBLANK(AE11)),EQ(AE11,0)),
+      0,
+      IF($A11,
+        AE11+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG12),AH12),
+  ,
+  IF(AG12,
+    AE13+1,
+    IF(AND(NOT(ISBLANK(AE13)),EQ(AE13,0)),
+      0,
+      IF($A13,
+        AE13+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG14),AH14),
+  ,
+  IF(AG14,
+    AE15+1,
+    IF(AND(NOT(ISBLANK(AE15)),EQ(AE15,0)),
+      0,
+      IF($A15,
+        AE15+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG16),AH16),
+  ,
+  IF(AG16,
+    AE17+1,
+    IF(AND(NOT(ISBLANK(AE17)),EQ(AE17,0)),
+      0,
+      IF($A17,
+        AE17+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG18),AH18),
+  ,
+  IF(AG18,
+    AE19+1,
+    IF(AND(NOT(ISBLANK(AE19)),EQ(AE19,0)),
+      0,
+      IF($A19,
+        AE19+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG20),AH20),
+  ,
+  IF(AG20,
+    AE21+1,
+    IF(AND(NOT(ISBLANK(AE21)),EQ(AE21,0)),
+      0,
+      IF($A21,
+        AE21+1,
+  ))))"
+on
+FALSE
+"=IF(
+  AND(NOT(AG23),AH23),
+  ,
+  IF(AG23,
+    AE24+1,
+    IF(AND(NOT(ISBLANK(AE24)),EQ(AE24,0)),
+      0,
+      IF($A24,
+        AE24+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG25),AH25),
+  ,
+  IF(AG25,
+    AE26+1,
+    IF(AND(NOT(ISBLANK(AE26)),EQ(AE26,0)),
+      0,
+      IF($A26,
+        AE26+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG27),AH27),
+  ,
+  IF(AG27,
+    AE28+1,
+    IF(AND(NOT(ISBLANK(AE28)),EQ(AE28,0)),
+      0,
+      IF($A28,
+        AE28+1,
+  ))))"
+FALSE
+"=IF(
+  AND(NOT(AG29),AH29),
+  ,
+  IF(AG29,
+    AE30+1,
+    IF(AND(NOT(ISBLANK(AE30)),EQ(AE30,0)),
+      0,
+      IF($A30,
+        AE30+1,
+  ))))"

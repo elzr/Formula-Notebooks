@@ -1,0 +1,353 @@
+// Sessions Sheet
+// URL: https://docs.google.com/spreadsheets/d/1iV_vSBHgMZW4cUSGw-LAXl9LiSVWCNxpHeyt6VzrlRU/edit#gid=2001494081
+// Named functions index
+* BLANK_ROW_COUNT
+  * NONBLANK_RANGE
+    * DAY_RANGE
+      * DAY_CHART
+    * WEEK_RANGE
+* NONBLANK_ROWS
+  * DAYS_IN_WEEK
+* ABC_COL
+* XY
+  * X_, Y_
+    * X_REF, X_ABS
+      * SET/GET_ROW_LABEL
+        * IS_SESSION
+  * SESSION_DURATION
+  * SESSION_GAP
+  * DAY_NAME
+  * SESSION_BAR
+* LAST, COMPACT
+  * DAY_START_TO_END
+
+
+// ---------------------------------------------------------
+// DAY_START_TO_END
+// Returns the duration from the first session start to the last session's end. Assumes you're on a day row.
+=LAMBDA(times, 
+      MOD(
+        LAST(times) - INDEX(times, 1, 1)
+      ,1)
+    )(
+      DAY_RANGE(sessionStartCol & sessionEndCol)
+    )
+// ---------------------------------------------------------
+// COMPACT(range)
+// Filters the given range of all empty values
+=LAMBDA(range, 
+    FILTER(range, NOT(ISBLANK(range)))
+  )(range_arg)
+
+// ---------------------------------------------------------
+// LAST(range)
+// Flattens the range into a column and returns the value of the last cell in the column.
+=LAMBDA(range, 
+    INDEX(range,ROWS(range),1)
+  )(
+    COMPACT(FLATTEN(range_arg))
+  )
+
+// ---------------------------------------------------------
+// IS_SESION(row)
+// Is the given row a 'session'?
+=EQ(GET_ROW_LABEL(row),"session")
+
+// ---------------------------------------------------------
+// GET_ROW_LABEL(row)
+// Find the row label (week/day/session) of the given row index.
+=XY_ABS(COLUMN(rowLabelCol),row)
+
+// ---------------------------------------------------------
+// DAY_BAR
+// Makes a barchart of the day minutes. Highlighting the minimum of 3h (180min). Assumes it's on the day chart column (I) at the day header.
+=LAMBDA(dayMinutes,dayMin,
+  IFNA(
+    SPARKLINE(
+      {
+        IF(dayMinutes > dayMin,
+          dayMin,
+          dayMinutes),
+        MAX(dayMinutes-dayMin,0)
+      },dayBarOpts))
+)(_X(2), 180)
+
+// ---------------------------------------------------------
+// X_REF(cell_ref, x)
+// From the given cell reference, move only horizontally, changing columns but staying in the same row. Leftwards is negative, rightwards is positive. Variant of X useful in MAP & ARRAY_FORMULA. See also X_ABS.
+=INDIRECT(
+  "R"& ROW(cell_ref) &""&
+  "C"& (COL(cell_ref)+x) &"", 
+  FALSE)
+
+// ---------------------------------------------------------
+// SET_ROW_LABEL
+// Label the row based on given cell_ref, which is assumed to be the row start. Useful for thinking more conceptually on space-based labels.
+=IF(X_REF(cell_ref, 0)<>"",
+  "week",
+  IF(X_REF(cell_ref, 1)<>"",
+    "day",
+    IF(X_REF(cell_ref, 2)<>"",
+    "session",)
+  ))
+
+// Huh, so I could make this work with maps, would be interesting
+=WEEK_DAY_SESSION(A2:A)
+=MAP(A2:A,WEEK_DAY_SESSION)
+
+=MAP(B2:B, LAMBDA(cell, 
+    ADDRESS(ROW(cell),COL(cell), 4)
+  ))
+
+// I'm failing at getting it to work with ARRAY_FORMULA. It's not threading
+=ArrayFormula((A2:A&WEEK_DAY_SESSION()))
+
+=IF(_X(1)<>"",
+  "week",
+  IF(_X(2)<>"",
+    "day",
+    IF(_X(3)<>"",
+    "session",)
+  )
+)
+// ---------------------------------------------------------
+// Gap mins formula
+=LAMBDA(gap, ArrayFormula(
+    IF(gap>0,
+      -gap*daysToMins,
+      -(CEILING(ABS(gap))+gap)*daysToMins)
+  ))(H2:H)
+
+=ArrayFormula(IF(H2:H>0,-H2:H*daysToMins ,-(CEILING(ABS(H2:H))+H2:H)*daysToMins))
+
+// ---------------------------------------------------------
+// Duration Mins formula
+=LAMBDA(duration, ArrayFormula(
+  IF(AND(ABS(duration)<1,
+    IF(duration>0,
+      IF(duration*daysToMins>1000,
+        HOUR(duration)*60+MINUTE(duration), 
+        duration*daysToMins),
+      (CEILING(ABS(duration))+duration)*daysToMins)
+  ,))
+)(F2:F)
+
+=ArrayFormula(
+  IF(ABS(F2:F)<1,
+    IF(F2:F>0,
+      IF(F2:F*daysToMins>1000,
+        HOUR(F2:F)*60+MINUTE(F2:F), 
+        F2:F*daysToMins),
+      (CEILING(ABS(F2:F))+F2:F)*daysToMins)
+  ,))
+  
+// ---------------------------------------------------------
+// SESSION_BAR
+// Makes a barchart of the gap & duration of the current session. Assumes it's on the session chart column (H) of the current session.
+=LAMBDA(duration, gap, 
+    IFNA(SPARKLINE({MIN(ABS(gap),60), duration},sessionBarOpts))
+  )(_X(2), _X(1))
+
+=IFNA(SPARKLINE({J269,ABS(I269)},sessionBarOpts))
+
+// ---------------------------------------------------------
+// DAY_NAME
+=INDEX(weekdays,WEEKDAY(_X(2),2))
+
+=INDEX(weekdays,WEEKDAY(E267,2))
+
+// ---------------------------------------------------------
+// XY_ABS(x,y)
+// Return the value of the cell x columns right & y rows down from the top-left corner of the page. x & y can only be positive. Variant of XY.
+=INDIRECT(
+  "R"& y &""&
+  "C"& x &"", 
+  FALSE)
+
+// ---------------------------------------------------------
+// _X(x)
+// Move only horizontally from current cell, changing columns but staying in the same row. Leftwards is negative, rightwards is positive.
+=XY(x, 0)
+
+// ---------------------------------------------------------
+// _Y(x)
+// Move only vertically, changing rows but staying in the same column. Upwards is negative, downwards is positive. Called _Y because Y is a reserved keyword (it's AND!).
+=XY(0, y)
+
+// ---------------------------------------------------------
+// XY(X, Y)
+// Returns the value of the cell that's x & y from the current cell (which is (0,0)). x offset moves by columns: leftwards is negative, rightwards is positive. y offset moves by rows: upwards is negative, downwards is positive.
+// See https://www.benlcollins.com/spreadsheets/indirect-function/
+// Wanted to call this RC but Sheets claims it's invalid, probably because it looks like RC syntax.
+=INDIRECT("R["& y &"]C["& x &"]", FALSE)
+
+// ---------------------------------------------------------
+// SESSION_GAP
+=LAMBDA(newStart, pastEnd,
+    IF(AND(newStart<>"",pastEnd<>""),
+      IF( IS_SESSION(ROW()-1),
+        newStart-pastEnd,
+      ),
+    )
+  ) (_X(-3), XY(-2,-1))
+=LAMBDA(newStart, pastEnd,
+    IF(AND(newStart<>"",pastEnd<>""),
+      newStart-pastEnd,
+    ))
+  (_X(-3), XY(-2,-1))
+
+=IF(AND(_X(-3)<>"",XY(-2,-1)<>""),_X(-3)-XY(-2,-1),)
+
+=IF(AND(F269<>"",G268<>""),F269-G268,)
+
+// ---------------------------------------------------------
+// SESSION_DURATION
+=LAMBDA(start, end, IF(
+  start<>"",
+    IF(end<>"", 
+      end-start,
+      IF(start<TIMEVALUE(NOW()),
+        MOD(NOW()-start,1), )
+    ),
+  ))(_X(-2), _X(-1))
+
+=IF(
+  XY(-2,0)<>"",
+    IF(XY(-1,0)<>"", 
+      XY(-1,0)-XY(-2,0),
+      IF(XY(-2,0)<TIMEVALUE(NOW()),
+        NOW()-XY(-1,0), )
+    ),
+  )
+
+=IF(
+  F269<>"",
+    IF(G269<>"", 
+      G269-F269,
+      IF(F269<TIMEVALUE(NOW()),
+        NOW()-F269, )
+    ),
+  )
+
+// ---------------------------------------------------------
+// ABC_COL(cell_ref)
+=REGEXEXTRACT(ADDRESS(1,COLUMN(cell_ref)),"[A-Z]+")
+
+// ---------------------------------------------------------
+// _ABC_COL()
+=REGEXEXTRACT(ADDRESS(1,COLUMN()),"[A-Z]+")
+
+// ---------------------------------------------------------
+// DAYS_IN_WEEK(output_col)
+=NONBLANK_ROWS(WEEK_RANGE, weekdayCol, output_col)
+
+=FILTER(
+  WEEK_RANGE(weekdayCol),
+  NOT(ISBLANK(
+    WEEK_RANGE(output_col))))
+
+// ---------------------------------------------------------
+// NONBLANK_ROWS(range, test_col, output_col)
+=FILTER(
+  range(output_col),
+  NOT(ISBLANK(
+    range(test_col))))
+
+=FILTER(
+  WEEK_RANGE(test_col),
+  NOT(ISBLANK(
+    WEEK_RANGE(output_col))))
+
+=FILTER(
+  INDEX(WEEK_RANGE("C"),,2),
+  NOT(ISBLANK(
+    INDEX(WEEK_RANGE("CD"),,1))))
+
+// ---------------------------------------------------------
+// DAY_CHART()
+=IFNA(SPARKLINE(
+    LAMBDA(Mins, 
+      FILTER(FLATTEN(Mins),FLATTEN(Mins) <> 0)
+    )(DAY_RANGE(gapMinsCol & sumMinsCol)),
+  dayChartOpts))
+
+=IFNA(SPARKLINE(
+    LAMBDA(Mins, 
+      FILTER(FLATTEN(Mins),FLATTEN(Mins) <> 0)
+    )(HOUR_RANGE("JK")),
+  dayChartOpts))
+  
+=IFNA(SPARKLINE(
+    FILTER(FLATTEN(HOUR_RANGE("JK")),FLATTEN(HOUR_RANGE("JK")) <> 0),
+  hourChartOpts))
+
+// ---------------------------------------------------------
+
+// BLANK_ROW_COUNT
+=ArrayFormula(
+    MATCH(TRUE,
+      NOT(ISBLANK(
+        INDIRECT(col&(ROW()+1)&":"&col))),
+    0)
+  )-1
+
+// ---------------------------------------------------------
+// NONBLANK_RANGE(test_col, output_col)
+=INDIRECT(
+  LEFT(output_col)
+  & (ROW()+1)
+  & ":"
+  & RIGHT(output_col)
+  & IFNA(
+      ROW()+BLANK_ROW_COUNT( test_col ),
+    ))
+
+// ---------------------------------------------------------
+// WEEK_RANGE(output_col)
+=NONBLANK_RANGE(weekCol, output_col)
+
+// ---------------------------------------------------------
+// WEEK_RANGE(output_col)
+=NONBLANK_RANGE(weekCol, output_col)
+
+// ---------------------------------------------------------
+// _DAY_RANGE(output_col)
+=NONBLANK_RANGE(weekdayCol, _ABC_COL())
+
+// ---------------------------------------------------------
+// DAY_RANGE(output_col)
+// My first Named Function in sheets! sat17sep2022
+// weekdayCol is an outside namedRange
+=NONBLANK_RANGE(weekdayCol, output_col)
+
+=INDIRECT(
+  LEFT(output_col)
+  & (ROW()+1)
+  & ":"
+  & RIGHT(output_col)
+  & IFNA(
+      ROW()+BLANK_ROW_COUNT( weekdayCol ),
+    ))
+
+=INDIRECT(
+  LEFT(output_col)
+  & (ROW()+1)
+  & ":"&RIGHT(output_col)
+  & IFNA(
+      (ROW()-1)+
+      ArrayFormula(
+        MATCH(TRUE,
+          NOT(ISBLANK(
+            INDIRECT(weekdayCol&(ROW()+1)&":"&weekdayCol))),
+        0)
+      ),
+    ))
+
+= "D"&(ROW()+1)&
+  ":D"&
+    IFNA(
+      ROW()+-1+
+      ArrayFormula(
+        match(TRUE,NOT(ISBLANK(INDIRECT("C"&(ROW()+1)&":C"))),0)
+      ),
+    )

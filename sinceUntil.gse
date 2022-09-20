@@ -1,0 +1,17 @@
+
+
+//Conditional formatting 
+
+//Today's unchecked
+=AND(
+  (C1),
+  EQ($C1,"day"),
+  EQ(TODAY(),C$3)
+  )
+
+//Today's checked
+=AND(
+  NOT(C1),
+  EQ($C1,"day"),
+  EQ(TODAY(),C$3)
+  )

@@ -1,0 +1,127 @@
+
+=DATEVALUE(AG5&"/"&AG4&"/2022")
+=INDEX(weekdays,WEEKDAY(AG2,2))
+29
+Aug
+TRUE
+"=IF(
+  AND(NOT(AG6),AH6),
+  ,
+  IF(AG6,
+    AE7+1,
+    IF(AND(NOT(ISBLANK(AE7)),EQ(AE7,0)),
+      0,
+      IF($A7,
+        AE7+1,
+  ))))"
+FALSE
+"=IF(
+  AND(NOT(AG8),AH8),
+  ,
+  IF(AG8,
+    AE9+1,
+    IF(AND(NOT(ISBLANK(AE9)),EQ(AE9,0)),
+      0,
+      IF($A9,
+        AE9+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG10),AH10),
+  ,
+  IF(AG10,
+    AE11+1,
+    IF(AND(NOT(ISBLANK(AE11)),EQ(AE11,0)),
+      0,
+      IF($A11,
+        AE11+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG12),AH12),
+  ,
+  IF(AG12,
+    AE13+1,
+    IF(AND(NOT(ISBLANK(AE13)),EQ(AE13,0)),
+      0,
+      IF($A13,
+        AE13+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG14),AH14),
+  ,
+  IF(AG14,
+    AE15+1,
+    IF(AND(NOT(ISBLANK(AE15)),EQ(AE15,0)),
+      0,
+      IF($A15,
+        AE15+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG16),AH16),
+  ,
+  IF(AG16,
+    AE17+1,
+    IF(AND(NOT(ISBLANK(AE17)),EQ(AE17,0)),
+      0,
+      IF($A17,
+        AE17+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG18),AH18),
+  ,
+  IF(AG18,
+    AE19+1,
+    IF(AND(NOT(ISBLANK(AE19)),EQ(AE19,0)),
+      0,
+      IF($A19,
+        AE19+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG20),AH20),
+  ,
+  IF(AG20,
+    AE21+1,
+    IF(AND(NOT(ISBLANK(AE21)),EQ(AE21,0)),
+      0,
+      IF($A21,
+        AE21+1,
+  ))))"
+on
+FALSE
+"=IF(
+  AND(NOT(AG23),AH23),
+  ,
+  IF(AG23,
+    AE24+1,
+    IF(AND(NOT(ISBLANK(AE24)),EQ(AE24,0)),
+      0,
+      IF($A24,
+        AE24+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG25),AH25),
+  ,
+  IF(AG25,
+    AE26+1,
+    IF(AND(NOT(ISBLANK(AE26)),EQ(AE26,0)),
+      0,
+      IF($A26,
+        AE26+1,
+  ))))"
+TRUE
+"=IF(
+  AND(NOT(AG27),AH27),
+  ,
+  IF(AG27,
+    AE28+1,
+    IF(AND(NOT(ISBLANK(AE28)),EQ(AE28,0)),
+      0,
+      IF($A28,
+        AE28+1,
+  ))))"

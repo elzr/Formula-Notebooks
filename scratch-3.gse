@@ -1,0 +1,14 @@
+=INDIRECT(
+  "R"& ROW(cell) &""&
+  "C"& (COL(cell)+x) &"", 
+  FALSE)
+
+=LAMBDA(cell,
+  IF(X_REL(cell, 0)<>"",
+    "week",
+    IF(X_REL(cell, 1)<>"",
+      "day",
+      IF(X_REL(cell, 2)<>"",
+      "session",)
+    )
+  ))(cell_arg)

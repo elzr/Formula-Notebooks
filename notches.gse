@@ -1,0 +1,179 @@
+// Notches Sheet
+// URL: https://docs.google.com/spreadsheets/d/1Fahc8gYJAGWklCMwxrh6ihHLQ4M8Vq8On8P7cAHPiPY/edit#gid=1853869321
+
+* XY, X_, Y_, XY_ABS imported from Sessions
+  * X_ABS, Y_ABS, Y_ABS_REF
+  * Y_REF
+    * GET/SET_COL_LABEL
+      * IS_DAY
+* DAY_LEFT
+* DAY_COUNT
+
+// ---------------------------------------------------------
+// DAY_COUNT()
+// Increment the count if today is true. Otherwise can return blank, 0, or prev+1 depending on context handled by NOT_TODAY. Assumes 
+
+//3rd pass
+=LAMBDA( today, prev, 
+    IF(today,
+      prev+1,
+      NOT_TODAY()
+    )
+  )(
+    _Y(-1),
+    PREV_DAY()
+  )
+
+//2nd pass
+=LAMBDA(
+    today, 
+    prev, 
+    extendToggle,
+    streakStartsNext,
+    IF(today,
+      prev+1,
+      IF(streakStartsNext,
+        "",
+        IF(IS_ZERO(prev),
+          0,
+          IF(extendToggle,
+            prev+1,
+          )
+      ))
+    )
+  )(
+    _Y(-1),
+    PREV_DAY(),
+    X_ABS(1),
+    AND( NOT(_Y(-1)), XY(1,-1) )
+  )
+
+//first pass
+=IF(
+    AND(
+        NOT(_Y(-1)),
+        XY(1,-1)
+      ),
+    ,
+    IF(_Y(-1),
+      AU7+1,
+      IF(AND(NOT(ISBLANK(AU7)),EQ(AU7,0)),
+        0,
+        IF(X_ABS(1),
+          AU7+1,
+    ))))
+
+// Original formula on AW7
+=IF(
+  AND(NOT(AW6),AX6),
+  ,
+  IF(AW6,
+    AU7+1,
+    IF(AND(NOT(ISBLANK(AU7)),EQ(AU7,0)),
+      0,
+      IF($A7,
+        AU7+1,
+  ))))
+
+// ---------------------------------------------------------
+// NOT_TODAY
+// What do we say to death? Can return blank, 0 or prev+1 depending on context.
+
+=LAMBDA(
+    prev, 
+    extendToggle,
+    streakStartsNext,
+    IF(streakStartsNext,
+      "",
+      IF(IS_ZERO(prev),
+        0,
+        IF(extendToggle,
+          prev+1,
+        )
+    ))
+  )(
+    PREV_DAY(),
+    X_ABS(1),
+    AND( NOT(_Y(-1)), XY(1,-1) )
+  )
+
+// ---------------------------------------------------------
+// IS_ZERO
+// Check value is zero. Not blank, zero!
+=AND(
+    NOT(ISBLANK(value)),
+    EQ(value,0)
+  )
+
+// ---------------------------------------------------------
+// STREAK_START_NEXT
+// Was going to put it in a separate function but feels too contextual.
+= AND( NOT(_Y(-1)), XY(1,-1) )
+
+= LAMBDA(up, rightUp,
+      AND( NOT(up), rightUp )
+    )(
+      _Y(-1),
+      XY(1,-1)
+    )
+
+// ---------------------------------------------------------
+// PREV_DAY
+// Returns the value of the day to the left, jumping left once more if the left col is a week col. Assumes you're below a day checkbox.
+=IF(IS_DAY(COL()-1),
+  _X(-1),
+  _X(-2))
+
+// ---------------------------------------------------------
+// IS_DAY(col_index)
+// Is the given col_index a 'day'?
+=EQ(GET_COL_LABEL(col_index),"day")
+
+// ---------------------------------------------------------
+// GET_COL_LABEL(col_index)
+// Get the col label of the given col index.
+// col_index = Column index. >1
+=XY_ABS(col_index, colLabelRow)
+
+// ---------------------------------------------------------
+// SET_COL_LABEL(cell_ref)
+// Set the col label (day/week) of the given cell reference. Empty if none of the above.
+=IF( EQ(LEFT(Y_ABS_REF(cell_ref, weekNumRow)), "w"),
+  "week",
+  IF( CONTAINS(Y_ABS_REF(cell_ref, weekdayRow), weekdays),
+    "day",
+  )
+)
+// ---------------------------------------------------------
+// Y_ABS_REF(cell_ref, y)
+// Return the value of the cell on the same column to the given cell reference but x rows down from the top edge of the page. y can only be positive. Variant of Y_ABS to use with MAP.
+// y = How many rows to move down from the top edge of the page, at the column of the given cell.
+=INDIRECT(
+  "R"& y &""&
+  "C"& COL(cell_ref) &"", 
+  FALSE)
+
+// ---------------------------------------------------------
+// Y_ABS(y)
+// Return the value of the cell on the same column that current cell but x rows down from the top edge of the page. y can only be positive. Variant of XY_ABS.
+// y = How many rows to move down from the top edge of the page, at the column of the current cell.
+=INDIRECT(
+  "R"& y &""&
+  "C"& COL() &"", 
+  FALSE)
+
+// ---------------------------------------------------------
+// X_ABS(x)
+// Return the value of the cell on the same row that current cell but x columns right from the left edge of the page. x can only be positive. Variant of XY_ABS.
+// x = How many columns to move right from the left edge of the page, at the row of the current cell.
+=INDIRECT(
+  "R"& ROW() &""&
+  "C"& x &"", 
+  FALSE)
+
+// ---------------------------------------------------------
+Tabs:
+* streaks
+* historic
+* lib
+* formulas

@@ -1,0 +1,10 @@
+=ArrayFormula(
+  ($F9 *
+    ((monthCols-$D9)>=0)*
+    ((monthCols-$D9)<=$E9*twelfth)
+  )*(ABS(((monthCols-$D9+twelfth)/twelfth)*$F9+$I9)<$B9)
+  +
+  ( (((monthCols-$D9)/twelfth)*$F9+$I9-$B9)*(-1)*
+    (((monthCols-$D9)/twelfth)*$F9+$I9-$B9>=-$F9)
+  )*(ABS(((monthCols-$D9)/twelfth)*$F9+$I9)<$B9)
+ )
