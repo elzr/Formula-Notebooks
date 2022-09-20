@@ -54,5 +54,5 @@ The text files are not executable themselves: you have to copy-paste between tex
 File format for formula notebooks: `.gse`
 
 ### Syntax highlighting
-This depends on this VSCode extension: [Google Sheets Equation Syntax Hightlighter](https://marketplace.visualstudio.com/items?itemName=leonidasIIV.google-sheets-equation-syntax-hightlighter&ssr=false#overview). It has a nice [README](https://github.com/leonidasIIV/vsc_sheets_formula_extension) here in Github. Last updated on mar2020.
+This depends on this VSCode extension: [Google Sheets Equation Syntax Hightlighter](https://marketplace.visualstudio.com/items?itemName=leonidasIIV.google-sheets-equation-syntax-hightlighter&ssr=false#overview). It has a nice [README](https://github.com/leonidasIIV/vsc_sheets_formula_extension) here on Github. Last updated on mar2020.
 
