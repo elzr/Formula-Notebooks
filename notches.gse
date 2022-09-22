@@ -1,7 +1,7 @@
 // Notches Sheet
 // URL: https://docs.google.com/spreadsheets/d/1Fahc8gYJAGWklCMwxrh6ihHLQ4M8Vq8On8P7cAHPiPY/edit#gid=1853869321
 
-* XY, X_, Y_, XY_ABS imported from Sessions
+* XY, _X, _Y, XY_ABS imported from Sessions
   * X_ABS, Y_ABS, Y_ABS_REF
     * GET/SET_COL_LABEL
       * IS_DAY
@@ -10,15 +10,105 @@
 * DAY_LEFT
 * DAY_COUNT
   * NOT_TODAY
+* PAST_WEEK_DAYS
+  * WEEK_SUMMARY
+
+// ---------------------------------------------------------
+// WEEK_SUMMARY
+// For the whole column, return count of checked days for the week and below the max count reached.
+=LAMBDA(week, {
+    COUNTIF(week,TRUE);
+    IF(
+      COUNTIF(week,TRUE),
+      MAX(FILTER(
+          INDEX(PAST_WEEK_DAYS(),2),
+          INDEX(PAST_WEEK_DAYS(),1)
+        ))
+    ,)
+  })(
+    PAST_WEEK_DAYS()
+  )
+
+//original at BM7 & below
+=COUNTIF(BF7:BL7,TRUE)
+=IF(EQ(BM7, 0),,MAXIFS(BF8:BL8,BF7:BL7,TRUE))
+
+// ---------------------------------------------------------
+//RANGE(r1, c1, r2, c2)
+// Returns the range bound by r1c1 and r2c2. Any coordinate can start with "$" for absolute value.
+// Huh, instead of having _X & X_ABS I could have a checker so _X("$0") = X_ABS(0)
+
+// ---------------------------------------------------------
+//PAST_WEEK_DAYS
+// Returns a range that's 7 cols left from & 1 row more than the current cell. Filtering out columsn that are not days.
+=LAMBDA(week, 
+  FILTER(
+    week,
+    INDEX(
+      MAP(week,
+        LAMBDA(cell,
+          IS_DAY(COL(cell))
+        )
+      )
+    , 1)
+  )
+)(
+  INDIRECT(
+    "R"&ROW()&"C"&(COLUMN()-7)&
+    ":"&
+    "R"&(ROW()+1)&"C"&(COLUMN()-1),
+    FALSE
+  )
+)
+
+=LAMBDA(week, 
+  FILTER(
+    week,
+    MAP(week,
+      LAMBDA(cell,
+        IS_DAY(COL(cell))
+      )
+    )
+  )
+)(
+  INDIRECT(
+    "R"&ROW()&"C"&(COLUMN()-7)&
+    ":"&
+    "R"&ROW()&"C"&(COLUMN()-1),
+    FALSE
+  )
+)
+
+=INDIRECT(
+  "R"&ROW()&"C"&(COL()-7)&
+  ":"&
+  "R"&ROW()&"C"&COL(),
+  FALSE
+)
 
 // ---------------------------------------------------------
 // Conditional formatting
+
+// Color week summary
+=AND(
+  $C7="check",
+  NOT(ISLOGICAL(E7)),
+  E7=7,
+)
 
 // Color check counts
 =AND(
   $C7="count",
   ISLOGICAL(E6),
   E6,
+)
+
+// Color check counts in week
+=AND(
+  $C7="count",
+  AND(
+    NOT(ISLOGICAL(E6)),NOT(ISBLANK(E6))
+  )
 )
 
 // Check coloring if today
@@ -29,10 +119,19 @@
   C1
 )
 
-// Check column is today
+// Color column if today
 =AND(
   C$2="day",
   C$3=TODAY()
+)
+
+// Lowlight checks in today columns
+=AND(
+  E$2="day",
+  $C7="check", 
+  E$3=TODAY(),
+  ISLOGICAL(E7),
+  NOT(E7)
 )
 
 // Check coloring
@@ -56,9 +155,13 @@
   E7=0,
 )
 
+// Bolder of 10 counts
 =AND(
   $C7="count",
-  MOD(E7,10)=0
+  AND(
+    NOT(ISLOGICAL(E6)),NOT(ISBLANK(E6))
+  ),
+  MOD(E7,10)=0,
 )
 
 // ---------------------------------------------------------
@@ -186,14 +289,7 @@
     ))
   )(
     prev_arg,
-    LAMBDA(up, upRight, 
-      AND(
-        ISLOGICAL(up),
-        ISLOGICAL(upRight),
-        NOT(up), 
-        upRight 
-      )
-    )(_Y(-1), XY(1,-1))
+    AND( NOT(_Y(-1)), XY(1,-1) )
   )
 
 =LAMBDA(
@@ -262,8 +358,16 @@
   )
 )
 // ---------------------------------------------------------
+// X_ABS_REF(cell_ref, x)
+// Return the value of the cell on the same row to the given cell reference but x cols right from the left edge of the page. y can only be positive. Variant of X_ABS to use with MAP.
+// x = How many cols to move right from the left edge of the page, at the row of the given cell.
+=INDIRECT(
+  "R"& ROW(cell_ref) &""&
+  "C"& x &"", 
+  FALSE)
+// ---------------------------------------------------------
 // Y_ABS_REF(cell_ref, y)
-// Return the value of the cell on the same column to the given cell reference but x rows down from the top edge of the page. y can only be positive. Variant of Y_ABS to use with MAP.
+// Return the value of the cell on the same column to the given cell reference but y rows down from the top edge of the page. y can only be positive. Variant of Y_ABS to use with MAP.
 // y = How many rows to move down from the top edge of the page, at the column of the given cell.
 =INDIRECT(
   "R"& y &""&

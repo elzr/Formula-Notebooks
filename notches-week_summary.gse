@@ -1,0 +1,99 @@
+// Interesting exploration I did.
+
+// ---------------------------------------------------------
+// WEEK_COUNT
+// Return count of checked days for the week
+=COUNTIF(PAST_WEEK_DAYS(),TRUE);
+
+// ---------------------------------------------------------
+// WEEK_MAX
+// Return max count for the week.
+=LAMBDA(week, {
+    IF( _Y(-1)<>"",
+      MAX(FILTER(
+          INDEX(week(),2),
+          INDEX(week(),1)
+        ))
+    ,)
+  })(
+    PAST_WEEK_DAYS()
+  )
+
+// WEEK_SUMMARY
+// Return count of checked days for the week and below the max count reached.
+
+//Ah, this should work but doesn't. It is quite extreme.
+//I get the error: "Single value expected. Nested array results are not supported"
+=MAP(BM7:BM, LAMBDA(cell,
+  IF(
+    EQ(X_ABS(3),"check"),
+    WEEK_SUMMARY(),
+  )
+))
+
+=LAMBDA(week, {
+    COUNTIF(week,TRUE);
+    IF(
+      COUNTIF(week,TRUE),
+      MAX(FILTER(
+          INDEX(PAST_WEEK_DAYS(),2),
+          INDEX(PAST_WEEK_DAYS(),1)
+        ))
+    ,)
+  })(
+    PAST_WEEK_DAYS()
+  )
+
+// No that's not it. There's a super weird bug going on and I think it has to do with MAXIFS.
+
+//These two should be equivalent...
+=MAX(FILTER(
+  INDEX(PAST_WEEK_DAYS(),2),
+  INDEX(PAST_WEEK_DAYS(),1)
+))
+//... but when I use these ones below I get an "Argument must be a range" error
+=MAXIFS(
+        INDEX(PAST_WEEK_DAYS(),2),
+        INDEX(PAST_WEEK_DAYS(),1),
+        TRUE)
+
+=LAMBDA(week, 
+      MAXIFS(
+        INDEX(week,2),
+        INDEX(week,1),
+        TRUE)
+  )(
+    PAST_WEEK_DAYS()
+  )
+  
+=LAMBDA(week, {
+    COUNTIF(week,TRUE);
+    IF(
+      COUNTIF(week,TRUE),
+      MAXIFS(
+        INDEX(week,2),
+        INDEX(week,1),
+        TRUE)
+    ,)
+  })(
+    PAST_WEEK_DAYS()
+  )
+
+// No that's not it. There's a super weird bug going on and I think it has to do with MAXIFS.
+// So interesting, this doesn't work because the first row hasn't been created yet!
+=LAMBDA(week, {
+    COUNTIF(week,TRUE);
+    IF(
+      _Y(-1)<>"",
+      MAXIFS(
+        INDEX(week,2),
+        INDEX(week,1),
+        TRUE)
+    ,)
+  })(
+    PAST_WEEK_DAYS()
+  )
+
+//original at BM7 & below
+=COUNTIF(BF7:BL7,TRUE)
+=IF(EQ(BM7, 0),,MAXIFS(BF8:BL8,BF7:BL7,TRUE))
