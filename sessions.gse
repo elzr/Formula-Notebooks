@@ -25,13 +25,13 @@
 // ---------------------------------------------------------
 // DAY_START_TO_END
 // Returns the duration from the first session start to the last session's end. Assumes you're on a day row.
-=LAMBDA(times, 
+=IFNA(LAMBDA(times, 
       MOD(
         LAST(times) - INDEX(times, 1, 1)
       ,1)
     )(
       DAY_RANGE(sessionStartCol & sessionEndCol)
-    )
+    ))
 // ---------------------------------------------------------
 // COMPACT(range)
 // Filters the given range of all empty values

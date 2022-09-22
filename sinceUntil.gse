@@ -2,8 +2,6 @@
 
 //Conditional formatting 
 
-//
-
 //Today's unchecked
 =AND(
   (C1),

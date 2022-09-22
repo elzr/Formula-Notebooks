@@ -39,7 +39,7 @@ It wasn't alll bad, at its best, it looked [like this](https://twitter.com/elzr/
 
 But what was fascinating to me about spreadsheets was being able to use the grid, the spatial arrangement of both your data and your code. Think [cellular automata](https://en.wikipedia.org/wiki/Cellular_automaton)! Think [ORCA](https://100r.co/site/orca.html)!
 
-Anyway, with native custom functions the ceiling of this style of programming has been raised considerably. I've been having great fun playing with the style, building it up. I want to share my progress as I keep at it. Not only is it a beautiful, powerful take on computation, I believe it can be a fast way to prototype UIs.
+Anyway, with native custom functions the ceiling of this style of programming has been raised considerably. I've been having great fun playing with the style, building it up. I want to share my progress as I keep at it. Not only is it a beautiful, powerful take on computation, I believe it can be a fast way to make next-gen internal tools & prototype new kinds of UI.
 
 ## Why notebooks?
 Because formulas can be [literate](https://en.wikipedia.org/wiki/Literate_programming)!
@@ -51,7 +51,7 @@ With text files we can have not only indenting & syntax highlighting but comment
 The text files are not executable themselves: you have to copy-paste between text-file and Google Sheets, stripping away the comments (or simply have them around, not within the formulas). Yes, it's a bit of a pain but it's worthwhile and better than the alternative of only relying on Sheets.
 
 ## Files
-File format for formula notebooks: `.gse`
+File format for formula notebooks: `.gse`****
 
 ### Syntax highlighting
 This depends on this VSCode extension: [Google Sheets Equation Syntax Hightlighter](https://marketplace.visualstudio.com/items?itemName=leonidasIIV.google-sheets-equation-syntax-hightlighter&ssr=false#overview). It has a nice [README](https://github.com/leonidasIIV/vsc_sheets_formula_extension) here on Github. Last updated on mar2020.

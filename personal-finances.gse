@@ -1,0 +1,10 @@
+// DEFER
+// Defers the original value into the given periods. Lays each deferral horizontally into as many columns as there are periods.
+// value = Original value
+// period = Periods in which to defer the original. Usually months.
+
+=ARRAYFORMULA((original/periods)*SEQUENCE(1, periods, 1,0))
+
+
+//ahh, sequence makes it start an integer!
+=SEQUENCE(1, periods, original/periods,0)

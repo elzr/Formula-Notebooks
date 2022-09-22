@@ -3,11 +3,82 @@
 
 * XY, X_, Y_, XY_ABS imported from Sessions
   * X_ABS, Y_ABS, Y_ABS_REF
-  * Y_REF
     * GET/SET_COL_LABEL
       * IS_DAY
+  * Y_REF
+    * SET_ROW_LABEL
 * DAY_LEFT
 * DAY_COUNT
+  * NOT_TODAY
+
+// ---------------------------------------------------------
+// Conditional formatting
+
+// Color check counts
+=AND(
+  $C7="count",
+  ISLOGICAL(E6),
+  E6,
+)
+
+// Check coloring if today
+=AND(   
+  C$2="day",
+  $C1="check", 
+  C$3=TODAY(),
+  C1
+)
+
+// Check column is today
+=AND(
+  C$2="day",
+  C$3=TODAY()
+)
+
+// Check coloring
+=AND(
+  $C7="check",
+  ISLOGICAL(E7),
+  E7
+)
+
+// Clearer of 0 counts
+=AND(
+  $C7="count",
+  E7<>"",
+  E7=0,
+)
+
+// Clearer of 0 counts for weeks
+=AND(
+  $C7="check",
+  E7<>"",
+  E7=0,
+)
+
+=AND(
+  $C7="count",
+  MOD(E7,10)=0
+)
+
+// ---------------------------------------------------------
+// SET_ROW_LABEL(cell_ref)
+// Lambda for labelling the rows as check/count/note. To be used with MAP.
+=IF(ISLOGICAL(cell_ref),
+  "check",
+  IF(ISLOGICAL(Y_REF(cell_ref, -1)),
+    "count",
+    IF(ISLOGICAL(Y_REF(cell_ref, -2)),
+    "note",)
+  ))
+
+// ---------------------------------------------------------
+// Y_REF(cell_ref, y)
+// From the given cell reference, move only vertically, changing rows but staying in the same col. Upwards is negative, downwards is positive. Variant of Y useful in MAP & ARRAY_FORMULA. See also Y_ABS & Y_ABS_REF.
+=INDIRECT(
+  "R"& (ROW(cell_ref)+y) &""&
+  "C"& COL(cell_ref) &"", 
+  FALSE)
 
 // ---------------------------------------------------------
 // DAY_COUNT()
@@ -17,7 +88,7 @@
 =LAMBDA( today, prev, 
     IF(today,
       prev+1,
-      NOT_TODAY()
+      NOT_TODAY(prev)
     )
   )(
     _Y(-1),
@@ -78,6 +149,52 @@
 // ---------------------------------------------------------
 // NOT_TODAY
 // What do we say to death? Can return blank, 0 or prev+1 depending on context.
+
+//optimization
+=LAMBDA(
+    prev, 
+    streakStartsNext,
+    IF(streakStartsNext,
+      "",
+      IF(IS_ZERO(prev),
+        0,
+        IF(X_ABS(1),
+          prev+1,
+        )
+    ))
+  )(
+    prev_arg,
+    LAMBDA(up, upRight, 
+      AND(
+        ISLOGICAL(up),
+        ISLOGICAL(upRight),
+        NOT(up), 
+        upRight 
+      )
+    )(_Y(-1), XY(1,-1))
+  )
+=LAMBDA(
+    prev, 
+    streakStartsNext,
+    IF(streakStartsNext,
+      "",
+      IF(IS_ZERO(prev),
+        0,
+        IF(X_ABS(1),
+          prev+1,
+        )
+    ))
+  )(
+    prev_arg,
+    LAMBDA(up, upRight, 
+      AND(
+        ISLOGICAL(up),
+        ISLOGICAL(upRight),
+        NOT(up), 
+        upRight 
+      )
+    )(_Y(-1), XY(1,-1))
+  )
 
 =LAMBDA(
     prev, 
