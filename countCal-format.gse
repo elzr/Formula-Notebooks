@@ -85,6 +85,13 @@
   COUNTIF($E7:E7, TRUE)=1,
 )
 
+// Color Today's check counts
+=N("T.ch.co")+AND(
+  E$5=TODAY(),
+  $C7="count",
+  ISLOGICAL(E6),
+  E6
+)
 
 // Color check counts
 =N("ch.co")+AND(

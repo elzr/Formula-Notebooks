@@ -1,6 +1,28 @@
 
 
 
+//TOTAL(check_count_rows)
+// Calculate appropriate row totals for since, until & duration cases.
+=LAMBDA(checkRow, countRow,
+  LAMBDA(checks,
+    IF(checks=1,
+      SUMIF(checkRow, TRUE, countRow),
+      checks
+    )
+  )(COUNTIF(checkRow,TRUE))
+)(
+  INDEX(check_count_rows,1),
+  INDEX(check_count_rows,2)
+)
+
+=LAMBDA(checks,
+  IF(checks=1,
+    SUMIF(E7:7, TRUE, E8:8),
+    checks
+  )
+)(COUNTIF(E7:7,TRUE))
+
+// ---------------------------------------------------------
 //How would I do this with ArrayFormula?
 ={"","","day",
   MAP(E4:4, 
@@ -12,29 +34,75 @@
     )
   )}
 
-
 // ---------------------------------------------------------
-// DAY_OFFSET()
+// DAY_OFFSET
+// Days from today: past are negative, today is zero, future is positive. Terribly useful!
 =XY_ABS(COL(), dayOffsetRow)
 
 // ---------------------------------------------------------
-// DAY_COUNT()
+// EXTEND_COUNT
+// Day count for streaks that extends into the future. Based on the DAY_COUNT in Notches.
+=LAMBDA( today, prev, extendToggle, streakStartsNext,
+    IF(today,
+      prev+1,
+      IF(streakStartsNext,
+        "",
+        IF(IS_ZERO(prev),
+          0,
+          prev+1
+      ))
+    )
+  )(
+    _Y(-1),
+    _X(-1),
+    X_ABS(1),
+    AND( NOT(_Y(-1)), XY(1,-1) )
+  )
+
+// ---------------------------------------------------------
+// DAY_COUNT
+// Day count for extensions or offsets. Depends on extendToggle and day checkboxes & offsets.
+=LAMBDA( offset, extendToggle,
+    IF(extendToggle,
+      EXTEND_COUNT(),
+      offset + IF(offset < 0, 0, 1)
+    )
+  )(
+    DAY_OFFSET(),
+    X_ABS(1)
+  )
+
+=LAMBDA( today, prev, offset, extendToggle, streakStartsNext,
+    IF(extendToggle,
+      IF(today,
+        prev+1,
+        IF(streakStartsNext,
+          "",
+          IF(IS_ZERO(prev),
+            0,
+        ))
+      ),
+      offset+IF(offset < 0, 0, 1)
+    )
+  )(
+    _Y(-1),
+    _X(-1),
+    DAY_OFFSET(),
+    X_ABS(1),
+    AND( NOT(_Y(-1)), XY(1,-1) )
+  )
+
 =LAMBDA( today, prev, next, offset,
     IF(offset < 0,
-      IF(today,
-        offset,
-        offset
-      ),
-      IF(today,
-        1+offset,
-        1+offset
-      )
+      offset
+      ,
+      1+offset
     )
   )(
     _Y(-1),
     _X(-1),
     _X(1),
-    DAY_OFFSET()
+    DAY_OFFSET(),
   )
 
 =LAMBDA( today, prev, next, offset,
