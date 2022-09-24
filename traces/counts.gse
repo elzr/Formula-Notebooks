@@ -1,6 +1,3 @@
-
-
-
 //TOTAL(check_count_rows)
 // Calculate appropriate row totals for since, until & duration cases.
 =LAMBDA(checkRow, countRow,

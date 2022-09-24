@@ -116,8 +116,8 @@
       NOT_TODAY(prev)
     )
   )(
-    _Y(-1),
-    PREV_DAY()
+    _Y(-1), //today
+    PREV_DAY() //prev
   )
 
 //2nd pass

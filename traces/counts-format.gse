@@ -78,12 +78,21 @@
   E7
 )
 
-//Check coloring of first check
+//Check coloring of FIRST check
 =N("ch.ch:1")+AND(
   $C7="check",
   E7,
   COUNTIF($E7:E7, TRUE)=1,
 )
+
+//Check coloring of LAST check
+=N("ch.ch:-1")+AND(
+  $C7="check",
+  E7,
+  COUNTIF(E7:7, TRUE)=1,
+)
+
+=N("ch.ch:1")+AND(   $C7="check",   E7,   COUNTIF($E7:E7, TRUE)=1, )
 
 // Color Today's check counts
 =N("T.ch.co")+AND(
@@ -100,7 +109,7 @@
   E6
 )
 
-//Color first check count
+//Color FIRST check count
 =N("ch.co:1")+AND(
   $C7="count",
   ISLOGICAL(E6),
