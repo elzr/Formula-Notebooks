@@ -16,8 +16,23 @@
 // ---------------------------------------------------------
 // WEEK_SUMMARY
 // Return count of checked days for the week and below the max count reached.
-=LAMBDA(week, 
-  LAMDA(weekCount,
+=LAMBDA(week, LAMBDA(weekCount,
+    {
+      weekCount;
+      IF( weekCount,
+        IF( weekCount = 7,
+          MAX(FILTER(
+              INDEX(week,2),
+              INDEX(week,1)
+            )),
+          TEXT(weekCount/7, "#%")
+        ),
+      )
+    }
+  )( COUNTIF(week,TRUE) )
+  )( PAST_WEEK_DAYS())
+
+=LAMBDA(week, LAMBDA(weekCount,
     {
       weekCount;
       IF(
@@ -26,9 +41,10 @@
             INDEX(week,2),
             INDEX(week,1)
           ))
-      ,)
+        ,
+      )
     }
-    )(COUNTIF(week,TRUE))
+  )( COUNTIF(week,TRUE) )
   )( PAST_WEEK_DAYS())
 
 =LAMBDA(week, {
