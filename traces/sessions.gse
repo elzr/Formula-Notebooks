@@ -293,6 +293,7 @@
 
 // ---------------------------------------------------------
 // NONBLANK_RANGE(test_col, output_col)
+// Gives first range at output_col of rows below that are blank at test_col.
 =INDIRECT(
   LEFT(output_col)
   & (ROW()+1)

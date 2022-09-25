@@ -119,7 +119,9 @@
 
 // Hide days that have no checks to the right and are not in an extend count
 =N("U.unch.co")+AND(
-  $C7="count",
+  $D7="count",
   NOT($A7),
-  COUNTIF(E6:6, TRUE)=0
+  COUNTIF(F6:6, TRUE)=0
 )
+
+=N("U.unch.co")+AND(   $D7="count",   NOT($B7),   COUNTIF(F6:6, TRUE)=0 )

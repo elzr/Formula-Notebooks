@@ -15,14 +15,29 @@
 
 // ---------------------------------------------------------
 // WEEK_SUMMARY
-// For the whole column, return count of checked days for the week and below the max count reached.
+// Return count of checked days for the week and below the max count reached.
+=LAMBDA(week, 
+  LAMDA(weekCount,
+    {
+      weekCount;
+      IF(
+        weekCount,
+        MAX(FILTER(
+            INDEX(week,2),
+            INDEX(week,1)
+          ))
+      ,)
+    }
+    )(COUNTIF(week,TRUE))
+  )( PAST_WEEK_DAYS())
+
 =LAMBDA(week, {
     COUNTIF(week,TRUE);
     IF(
       COUNTIF(week,TRUE),
       MAX(FILTER(
-          INDEX(PAST_WEEK_DAYS(),2),
-          INDEX(PAST_WEEK_DAYS(),1)
+          INDEX(week,2),
+          INDEX(week,1)
         ))
     ,)
   })(
