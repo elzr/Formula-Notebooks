@@ -5,9 +5,9 @@
 
 // S.co: Since counts: Show past days that have no checks to the right. Since days.
 =N("S.co")+AND(
-  $C9="count",
-  E$5<0,
-  COUNTIF($E8:E8, TRUE)>0
+  $D8="count",
+  F$3<0,
+  COUNTIF($F7:F7, TRUE)>0
 )
 
 // S.ch: Since checks
@@ -19,9 +19,9 @@
 
 //Hide days that have no checks to the left and are in the past
 =N("S.unch.co")+AND(
-  $C7="count",
-  COUNTIF($E6:E6, TRUE)=0,
-  E$3<0
+  $D8="count",
+  COUNTIF($F7:F7, TRUE)=0,
+  F$3<0
 )
 
 // U.ch: Until check: Show past days that have no checks to the right. Until days.
@@ -34,11 +34,11 @@
 // Clear count of unchecked if today
 // isCount / isToday / isAboveUnchecked / notExtendToggle / notFutureChecked
 =N("T.unch.co")+AND(
-  $C7="count",
-  E$5=TODAY(),
-  NOT(E6),
-  NOT($A7),
-  COUNTIF(E6:6, TRUE)=0 
+  $D8="count",
+  F$5=TODAY(),
+  NOT(F7),
+  NOT($A8),
+  COUNTIF(F7:7, TRUE)=0 
 )
 
 // Check coloring if today
@@ -85,6 +85,7 @@
   COUNTIF($E7:E7, TRUE)=1,
 )
 
+
 //Check coloring of LAST check
 =N("ch.ch:-1")+AND(
   $C7="check",
@@ -96,32 +97,33 @@
 
 // Color Today's check counts
 =N("T.ch.co")+AND(
-  E$5=TODAY(),
-  $C7="count",
-  ISLOGICAL(E6),
-  E6
+  F$5=TODAY(),
+  $D8="count",
+  ISLOGICAL(F7),
+  F7
 )
 
 // Color check counts
 =N("ch.co")+AND(
-  $C7="count",
-  ISLOGICAL(E6),
-  E6
+  $D8="count",
+  ISLOGICAL(F7),
+  F7
 )
 
 //Color FIRST check count
 =N("ch.co:1")+AND(
-  $C7="count",
-  ISLOGICAL(E6),
-  E6,
-  COUNTIF($E6:E6, TRUE)=1,
+  $D8="count",
+  ISLOGICAL(F7),
+  F7,
+  COUNTIF($F7:F7, TRUE)=1,
 )
 
 // Hide days that have no checks to the right and are not in an extend count
 =N("U.unch.co")+AND(
-  $D7="count",
-  NOT($A7),
-  COUNTIF(F6:6, TRUE)=0
+  $D8="count",
+  NOT($A8),
+  COUNTIF(F7:7, TRUE)=0
 )
 
-=N("U.unch.co")+AND(   $D7="count",   NOT($B7),   COUNTIF(F6:6, TRUE)=0 )
+=N("U.unch.co")+AND(   $D8="count",   NOT($A8),   COUNTIF(#REF!, TRUE)=0 )
+=N("U.unch.co")+AND(   $D8="count",   NOT($A8),   COUNTIF(F6:6, TRUE)=0 )

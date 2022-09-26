@@ -3,7 +3,29 @@
 =LAMBDA(checkRow, countRow,
   LAMBDA(checks,
     IF(checks=1,
-      SUMIF(checkRow, TRUE, countRow),
+      IF( _Y(1) <> "",
+        DAYS(_Y(1),TODAY()),
+        SUMIF(checkRow, TRUE, countRow)
+      ),
+      IF(
+        REGEXMATCH(JOIN("",ArrayFormula(IF(checkRow,"1","0"))), "10+1"),
+        INDEX(countRow, MATCH(TRUE,checkRow,-1)),
+        checks
+      )
+    )
+  )(COUNTIF(checkRow,TRUE))
+)(
+  INDEX(check_count_rows,1),
+  INDEX(check_count_rows,2)
+)
+
+=LAMBDA(checkRow, countRow,
+  LAMBDA(checks,
+    IF(checks=1,
+      IF( _Y(1) <> "",
+        DAYS(_Y(1),TODAY()),
+        SUMIF(checkRow, TRUE, countRow)
+      ),
       checks
     )
   )(COUNTIF(checkRow,TRUE))
@@ -34,6 +56,16 @@
 // ---------------------------------------------------------
 // DAY_OFFSET
 // Days from today: past are negative, today is zero, future is positive. Terribly useful!
+=LAMBDA(today, yesterday,
+  if(yesterday = "Start",
+    _X(-1),
+    today
+  )
+)(
+  XY_ABS(COL(), dayOffsetRow),
+  XY_ABS(COL()-1, dayOffsetRow)
+)
+
 =XY_ABS(COL(), dayOffsetRow)
 
 // ---------------------------------------------------------
