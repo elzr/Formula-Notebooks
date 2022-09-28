@@ -10,7 +10,7 @@
   * DAYS_IN_WEEK
 * ABC_COL
 * XY
-  * X_, Y_
+  * _X, _Y
     * X_REF, X_ABS
       * SET/GET_ROW_LABEL
         * IS_SESSION
@@ -310,14 +310,13 @@
 // WEEK_RANGE(output_col)
 =NONBLANK_RANGE(weekCol, output_col)
 
-// ---------------------------------------------------------
-// _DAY_RANGE(output_col)
-=NONBLANK_RANGE(weekdayCol, _ABC_COL())
 
 // ---------------------------------------------------------
 // DAY_RANGE(output_col)
 // My first Named Function in sheets! sat17sep2022
 // weekdayCol is an outside namedRange
+=NONBLANK_RANGE(weekdayCol, _ABC_COL())
+
 =NONBLANK_RANGE(weekdayCol, output_col)
 
 =INDIRECT(

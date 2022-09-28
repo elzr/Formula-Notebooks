@@ -1,3 +1,35 @@
+// GRIDSET Exploration!
+
+=MAP(compraMSI, 
+  LAMBDA(cell, 
+    IF( AND( COLUMN(cell)=2, ROW(cell)=4 ),
+      20000,
+      IF( ISFORMULA(cell),
+        cell&"",
+        cell
+      )
+    )
+  )
+)
+
+=MAP(compraMSI, 
+  LAMBDA(cell, 
+    IF( AND( COLUMN(cell)=2, ROW(cell)=4 ),
+      20000,
+      cell)
+  )
+)
+
+=MAP(compraMSI, 
+  LAMBDA(x, 
+    COLUMN(x)&","&ROW(x)
+  )
+)
+
+=MAP(compraMSI, LAMBDA(x, COLUMN(x)))
+
+// ---------------------------------------------------------
+
 =INDIRECT(
   "R"& ROW(cell) &""&
   "C"& (COL(cell)+x) &"", 

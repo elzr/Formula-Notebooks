@@ -1,0 +1,30 @@
+
+
+// ---------------------------------------------------------
+
+
+=IF(
+    _Y(-1),
+    _X(-1)+1,
+  )
+
+=IF(D10,C11+1,)
+
+// ---------------------------------------------------------
+// _X(x)
+// Move only horizontally from current cell, changing columns but staying in the same row. Leftwards is negative, rightwards is positive.
+=XY(x, 0)
+
+// ---------------------------------------------------------
+// _Y(x)
+// Move only vertically, changing rows but staying in the same column. Upwards is negative, downwards is positive. Called _Y because Y is a reserved keyword (it's AND!).
+=XY(0, y)
+
+// ---------------------------------------------------------
+// XY(X, Y)
+// Returns the value of the cell that's x & y from the current cell, which is (0,0). x offset moves by columns: leftwards is negative, rightwards is positive. y offset moves by rows: upwards is negative, downwards is positive.
+// x = 
+// y = 
+// See https://www.benlcollins.com/spreadsheets/indirect-function/
+// Wanted to call this RC but Sheets claims it's invalid, probably because it looks like RC syntax.
+=INDIRECT("R["& y &"]C["& x &"]", FALSE)
