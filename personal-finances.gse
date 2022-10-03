@@ -3,7 +3,9 @@
 // value = Original value
 // period = Periods in which to defer the original. Usually months.
 
-=ARRAYFORMULA((original/periods)*SEQUENCE(1, periods, 1,0))
+=ARRAYFORMULA(
+  (original/periods) * SEQUENCE(1, periods, 1,0)
+)
 
 
 //ahh, sequence makes it start an integer!

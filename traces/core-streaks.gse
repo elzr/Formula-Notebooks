@@ -27,4 +27,9 @@
 // y = 
 // See https://www.benlcollins.com/spreadsheets/indirect-function/
 // Wanted to call this RC but Sheets claims it's invalid, probably because it looks like RC syntax.
+
+// https://www.benlcollins.com/spreadsheets/indirect-function/#comment-191604
+
+=INDEX(1:10000,ROW()+y,COL()+x)
+
 =INDIRECT("R["& y &"]C["& x &"]", FALSE)

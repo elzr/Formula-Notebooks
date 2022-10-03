@@ -71,7 +71,22 @@
 
 // ---------------------------------------------------------
 //PAST_WEEK_DAYS
-// Returns a range that's 7 cols left from & 1 row more than the current cell. Filtering out columsn that are not days.
+// Returns a range that's 7 cols left & 1 row below than the current cell. Filtering out columns that are not days.
+=LAMBDA(week, 
+  FILTER(
+    week,
+    INDEX(
+      MAP(week,
+        LAMBDA(cell,
+          IS_DAY(COL(cell))
+        )
+      )
+    , 1)
+  )
+)(
+  OFFSET(XY(0,0), 0,-7,2,7)
+)
+
 =LAMBDA(week, 
   FILTER(
     week,
@@ -131,6 +146,11 @@
 // ---------------------------------------------------------
 // Y_REF(cell_ref, y)
 // From the given cell reference, move only vertically, changing rows but staying in the same col. Upwards is negative, downwards is positive. Variant of Y useful in MAP & ARRAY_FORMULA. See also Y_ABS & Y_ABS_REF.
+
+=INDEX(BASE_SHEET(),ROW(cell_ref)+y,COL(cell_ref))
+
+=INDEX(1:10000,ROW(cell_ref)+y,COL(cell_ref))
+
 =INDIRECT(
   "R"& (ROW(cell_ref)+y) &""&
   "C"& COL(cell_ref) &"", 
@@ -324,6 +344,11 @@
 // X_ABS_REF(cell_ref, x)
 // Return the value of the cell on the same row to the given cell reference but x cols right from the left edge of the page. y can only be positive. Variant of X_ABS to use with MAP.
 // x = How many cols to move right from the left edge of the page, at the row of the given cell.
+
+=INDEX(BASE_SHEET(),ROW(cell_ref), x)
+
+=INDEX(1:10000,ROW(cell_ref), x)
+
 =INDIRECT(
   "R"& ROW(cell_ref) &""&
   "C"& x &"", 
@@ -332,6 +357,11 @@
 // Y_ABS_REF(cell_ref, y)
 // Return the value of the cell on the same column to the given cell reference but y rows down from the top edge of the page. y can only be positive. Variant of Y_ABS to use with MAP.
 // y = How many rows to move down from the top edge of the page, at the column of the given cell.
+
+=INDEX(BASE_SHEET(),y,COL(cell_ref))
+
+=INDEX(1:10000,y,COL(cell_ref))
+
 =INDIRECT(
   "R"& y &""&
   "C"& COL(cell_ref) &"", 
@@ -341,6 +371,11 @@
 // Y_ABS(y)
 // Return the value of the cell on the same column that current cell but x rows down from the top edge of the page. y can only be positive. Variant of XY_ABS.
 // y = How many rows to move down from the top edge of the page, at the column of the current cell.
+
+=INDEX(BASE_SHEET(),y,COL())
+
+=INDEX(1:10000,y,COL())
+
 =INDIRECT(
   "R"& y &""&
   "C"& COL() &"", 
@@ -350,10 +385,20 @@
 // X_ABS(x)
 // Return the value of the cell on the same row that current cell but x columns right from the left edge of the page. x can only be positive. Variant of XY_ABS.
 // x = How many columns to move right from the left edge of the page, at the row of the current cell.
+
+=INDEX(BASE_SHEET(),ROW(),x)
+
+=INDEX(1:10000,ROW(),x)
+
 =INDIRECT(
   "R"& ROW() &""&
   "C"& x &"", 
   FALSE)
+
+// ---------------------------------------------------------
+// BASE_SHEET
+// Returns a reference to the range of all the cells of the base sheet on which other formulas, like XY, will be working.
+=Sheet1!$1:$10000
 
 // ---------------------------------------------------------
 Tabs:
