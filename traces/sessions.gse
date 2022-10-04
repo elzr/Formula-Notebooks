@@ -22,6 +22,21 @@
   * DAY_START_TO_END
 
 // ---------------------------------------------------------
+// weekHourMax
+=MAX(
+  NONBLANK_ROWS( 
+    LAMBDA(atCol, 
+      INDEX(3:1000,
+        0,
+        ABC_TO_NUM(atCol)
+      )
+    ), 
+    weekCol, 
+    durationCol
+  )
+)
+
+// ---------------------------------------------------------
 // DAY_START_TO_END
 // Returns the duration from the first session start to the last session's end. Assumes you're on a day row.
 =IFNA(LAMBDA(times, 
@@ -237,12 +252,18 @@
     ),
   )
 
+// ABC_TO_NUM( abc )
+// Convert a column reference given as letter ("A", "AA") to a number.
+=COLUMN(INDIRECT(abc&"1"))
+
 // ---------------------------------------------------------
 // ABC_COL(cell_ref)
+// Return column of referenced cell as as letter.
 =REGEXEXTRACT(ADDRESS(1,COLUMN(cell_ref)),"[A-Z]+")
 
 // ---------------------------------------------------------
 // _ABC_COL()
+// Return column of current cell as letter.
 =REGEXEXTRACT(ADDRESS(1,COLUMN()),"[A-Z]+")
 
 // ---------------------------------------------------------
@@ -256,6 +277,7 @@
 
 // ---------------------------------------------------------
 // NONBLANK_ROWS(range, test_col, output_col)
+// Return only the range rows at the output_col that were not blank at the test_col.
 =FILTER(
   range(output_col),
   NOT(ISBLANK(
