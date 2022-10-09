@@ -22,6 +22,18 @@
   * DAY_START_TO_END
 
 // ---------------------------------------------------------
+// SESSION_COUNT
+// As soon as start time is input, start counting sessions on 1 for the first day row. Otherwise plus one the count above.
+
+=IF(_X(1)<>"", 
+  IF(XY(-1,-1)="", 
+    _Y(-1)+1,
+    1)
+  ,)
+
+=IF(D393<>"", IF(B392="",C392+1,1),)
+
+// ---------------------------------------------------------
 // weekHourMax
 =MAX(
   NONBLANK_ROWS( 
