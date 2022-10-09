@@ -1,7 +1,7 @@
 // Sessions Sheet
 // URL: https://docs.google.com/spreadsheets/d/1iV_vSBHgMZW4cUSGw-LAXl9LiSVWCNxpHeyt6VzrlRU/edit#gid=2001494081
 // Named functions index
-* BLANK_ROW_COUNT
+* BLANK_ROWS_AFTER
   * NONBLANK_RANGE
     * DAY_RANGE
       * DAY_CHART
@@ -20,6 +20,14 @@
   * SESSION_BAR
 * LAST, COMPACT
   * DAY_START_TO_END
+
+
+// ---------------------------------------------------------
+// NEW_DAY
+// Assumes you're at a new day header. Goes back to the previous day header and adds 1 day.
+
+=weekdayCol
+
 
 // ---------------------------------------------------------
 // SESSION_COUNT
@@ -280,6 +288,7 @@
 
 // ---------------------------------------------------------
 // DAYS_IN_WEEK(output_col)
+// Return the day rows at output_col in the below WEEK_RANGE.
 =NONBLANK_ROWS(WEEK_RANGE, weekdayCol, output_col)
 
 =FILTER(
@@ -324,8 +333,11 @@
   hourChartOpts))
 
 // ---------------------------------------------------------
+// BLANK_ROWS_AFTER
+// Counts the blank rows at test_col after current row.
 
-// BLANK_ROW_COUNT
+// Column in which to check if blank
+
 =ArrayFormula(
     MATCH(TRUE,
       NOT(ISBLANK(
@@ -335,22 +347,22 @@
 
 // ---------------------------------------------------------
 // NONBLANK_RANGE(test_col, output_col)
-// Gives first range at output_col of rows below that are blank at test_col.
+// Gets first range at output_col of rows below that are blank at test_col.
+// test_col = Column letter in which to test for blankness.
+// output_col = Column letter in which you want the output range. Can be a double letter to mark col start & col end
 =INDIRECT(
   LEFT(output_col)
   & (ROW()+1)
   & ":"
   & RIGHT(output_col)
   & IFNA(
-      ROW()+BLANK_ROW_COUNT( test_col ),
+      ROW()+BLANK_ROWS_AFTER( test_col ),
     ))
 
 // ---------------------------------------------------------
 // WEEK_RANGE(output_col)
-=NONBLANK_RANGE(weekCol, output_col)
-
-// ---------------------------------------------------------
-// WEEK_RANGE(output_col)
+// Get the below range of day rows in the week at output_col. Based on empty rows at weekCol and assuming current row is the week heading.
+// output_col = Column letter in which you want the output range. Can be a double letter to mark startCol & endCol
 =NONBLANK_RANGE(weekCol, output_col)
 
 
@@ -368,7 +380,7 @@
   & ":"
   & RIGHT(output_col)
   & IFNA(
-      ROW()+BLANK_ROW_COUNT( weekdayCol ),
+      ROW()+BLANK_ROWS_AFTER( weekdayCol ),
     ))
 
 =INDIRECT(
