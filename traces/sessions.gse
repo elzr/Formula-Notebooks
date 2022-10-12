@@ -1,15 +1,15 @@
 // Sessions Sheet
 // URL: https://docs.google.com/spreadsheets/d/1iV_vSBHgMZW4cUSGw-LAXl9LiSVWCNxpHeyt6VzrlRU/edit#gid=2001494081
 // Named functions index
-* BLANK_ROWS_AFTER
+* BLANK_ROWS_AFTER/BEFORE
   * NONBLANK_RANGE
     * DAY_RANGE
       * DAY_CHART
     * WEEK_RANGE
 * NONBLANK_ROWS
   * DAYS_IN_WEEK
-* ABC_COL
-* XY
+* ABC_COL, ABC_TO_NUM
+* XY, XY_ABS
   * _X, _Y
     * X_REF, X_ABS
       * SET/GET_ROW_LABEL
@@ -21,17 +21,26 @@
 * LAST, COMPACT
   * DAY_START_TO_END
 
-
 // ---------------------------------------------------------
 // NEW_DAY
 // Assumes you're at a new day header. Goes back to the previous day header and adds 1 day.
 
-=weekdayCol
+// This is clearly too slow. My hypothesis is that BLANK_ROWS_ABOVE_ is causing a lot of unnecessary computation.
+=LAMBDA(rowsToDay, 
+  IF(XY(-3,-rowsToDay) = "",
+    _Y(-rowsToDay)+1,
+    _Y(-BLANK_ROWS_ABOVE_(ROW()-1, weekdayCol)-2)+1)
+)(BLANK_ROWS_ABOVE_(ROW(), weekdayCol)+1)
 
-
+=BLANK_ROWS_ABOVE_(weekdayCol)
 // ---------------------------------------------------------
 // SESSION_COUNT
 // As soon as start time is input, start counting sessions on 1 for the first day row. Otherwise plus one the count above.
+=IF(_X(1)<>"", 
+  IF(IFNA(XY(-1,-1)="",FALSE), 
+    _Y(-1)+1,
+    1)
+  ,)
 
 =IF(_X(1)<>"", 
   IF(XY(-1,-1)="", 
@@ -189,7 +198,7 @@
 
 // ---------------------------------------------------------
 // DAY_NAME
-=INDEX(weekdays,WEEKDAY(_X(2),2))
+=IFNA(INDEX(weekdays,WEEKDAY(_X(2),2)),"-")
 
 =INDEX(weekdays,WEEKDAY(E267,2))
 
@@ -333,15 +342,76 @@
   hourChartOpts))
 
 // ---------------------------------------------------------
+// BLANK_ROWS_ABOVE
+//=BLANK_ROWS_ABOVE(test_col, test_row)
+// Huh, tried some simple recursion and it's still super slow at the week header.
+
+//=LAMBDA(test_row, test_col, XY_ABS(test_row, ABC_TO_NUM(test_col)))
+
+=0+
+  IF(XY_ABS(test_col, test_row-1) = "", 
+    1+BLANK_ROWS_ABOVE(test_col, test_row-1), 
+    0
+  )
+
+=0+
+  IF(XY_ABS(test_row, ABC_TO_NUM(test_col)) = "", 
+    1+BLANK_ROW_ABOVE(test_row-1, test_col), 
+    0
+  )
+
+// ---------------------------------------------------------
+// BLANK_ROWS_ABOVE_
+// Counts the blank rows at test_col BELOW the given start_row. Checks up to 15 rows.
+// start_row = Row number from which to start
+// test_col = Letter of column to check if blank.
+
+=ArrayFormula(
+  MATCH(TRUE,
+    REVERSE_COL(
+      NOT(ISBLANK(
+        INDIRECT(
+          test_col&(start_row-1)&
+          ":"&test_col&(start_row-15)
+        )))
+    ),
+  0))-1
+
+=ArrayFormula(
+  MATCH(TRUE,
+    REVERSE_COL(
+      NOT(ISBLANK(
+        INDIRECT(
+          test_col&(ROW()-1)&
+          ":"&test_col&(ROW()-30)
+        )))
+    ),
+  0))
+
+// ---------------------------------------------------------
+// REVERSE_COL
+// Reverse the given column range. Shocking that this is not a formula already.
+// col = Column range to reverse.
+
+=INDEX(
+    SORT({
+      SEQUENCE(ROWS(col),1,1,1),
+      col
+    },1,false),
+  0,2)
+
+=INDEX(SORT({SEQUENCE(ROWS(test),1,1,1),test},1, false),0,2)
+
+// ---------------------------------------------------------
 // BLANK_ROWS_AFTER
-// Counts the blank rows at test_col after current row.
+// Counts the blank rows at test_col AFTER current row.
 
 // Column in which to check if blank
 
 =ArrayFormula(
     MATCH(TRUE,
       NOT(ISBLANK(
-        INDIRECT(col&(ROW()+1)&":"&col))),
+        INDIRECT(test_col&(ROW()+1)&":"&test_col))),
     0)
   )-1
 
