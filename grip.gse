@@ -1,0 +1,54 @@
+// ---------------------------------------------------------
+// XY_ABS(x,y)
+// Return the value of the cell x columns right & y rows down from the top-left corner of the page. x & y can only be positive. Variant of XY.
+
+=INDEX(BASE_SHEET(),y,x)
+
+=INDIRECT(
+  "R"& y &""&
+  "C"& x &"", 
+  FALSE)
+
+// ---------------------------------------------------------
+// _X(x)
+// Move only horizontally from current cell, changing columns but staying in the same row. Leftwards is negative, rightwards is positive.
+// x = Leftwards is negative, rightwards is positive. 0, -1, 1
+=XY(x, 0)
+
+=MAP(B5:C6,  LAMBDA(x, 
+    COLUMN(x)&","&ROW(x)
+  ))
+
+// ---------------------------------------------------------
+// _Y(x)
+// Move only vertically, changing rows but staying in the same column. Upwards is negative, downwards is positive. Called _Y because Y is a reserved keyword (it's AND!).
+// y = Rows to move. Upwards is negative, downwards is positive. 0, -1, 1
+=_XY(0, y)
+
+// ---------------------------------------------------------
+// RANGE_XY(range, x, y)
+// x & y are relative offsets.
+=INDEX(range,y,x)
+
+// RANGE_XY_REPLACE(range, x, y, replace)
+
+=MAP()
+
+=MAP(B5:C6, LAMBDA(x, 
+    COLUMN(x)&","&ROW(x)&"; "&MATCH(B5:C6, x)
+  ))
+
+
+//QUOTE
+
+//EVAL
+
+// ---------------------------------------------------------
+// _XY(x, y)
+// Returns the value of the cell that's x & y from the current cell (which is (0,0)). x offset moves by columns: leftwards is negative, rightwards is positive. y offset moves by rows: upwards is negative, downwards is positive.
+// See https://www.benlcollins.com/spreadsheets/indirect-function/
+// Wanted to call this RC but Sheets claims it's invalid, probably because it looks like RC syntax.
+// x = Column index. 1, COL(rowLabelCol)
+// y = Row index. 1, 2
+
+=INDIRECT("R["& y &"]C["& x &"]", FALSE)
