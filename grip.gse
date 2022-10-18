@@ -27,21 +27,153 @@
 
 // ---------------------------------------------------------
 // RANGE_XY(range, x, y)
+// Return the cell that is at (x,y) in the given range.
 // x & y are relative offsets.
 =INDEX(range,y,x)
 
+// ---------------------------------------------------------
 // RANGE_XY_REPLACE(range, x, y, replace)
+// Replace the cell that is at (x,y) in the given range.
+=MAP(range, LAMBDA(cell,
+  LAMBDA(_x, _y,
+    IF(AND(_x=x, _y=y),
+      replace,
+      cell
+    )
+  )(
+    COLUMN(cell)-COLUMN(range)+1,
+    ROW(cell)-ROW(range)+1
+  )
+  ))
 
-=MAP()
+// THIS WOOOOORKS
+=LAMBDA(range, 
+  MAP(range, LAMBDA(cell,
+    LAMBDA(_x, _y,
+      IF(AND(_x=1, _y=2),
+        "replace",
+        cell
+      )
+    )(
+      COLUMN(cell)-COLUMN(range)+1,
+      ROW(cell)-ROW(range)+1
+    )
+   ))
+)(
+  A1:B2
+)
+
+=LAMBDA(range, 
+  MAP(range, LAMBDA(cell, 
+      COLUMN(cell)&","&ROW(cell)&"; "&COLUMN(range)&","&ROW(range)
+   ))
+)(
+  A1:B2
+)
 
 =MAP(B5:C6, LAMBDA(x, 
     COLUMN(x)&","&ROW(x)&"; "&MATCH(B5:C6, x)
   ))
 
-
+// ---------------------------------------------------------
 //QUOTE
+//A simulation of what QUOTE might be. Can only handle ranges as input for now.
+=FORMULATEXT(range)
 
+// ---------------------------------------------------------
 //EVAL
+//A simulation of what EVAL might be.
+
+=LAMBDA(inside,
+  MAP(
+    ARRAYFORMULA(
+      SPLIT(
+        TRANSPOSE(
+          SPLIT( inside, ";" )
+        ),
+      ",")
+    ),
+    LAMBDA(cell,
+      IF(ISTEXT(cell),
+        MID(cell,2,LEN(cell)-2),
+        cell
+      )
+    )
+  )
+)(
+  REGEXREPLACE(
+    REGEXREPLACE(G27,"^=",""),
+      "[{}]","")
+)
+
+=LAMBDA(inside,
+  MAP(
+    ARRAYFORMULA(
+      SPLIT(
+        TRANSPOSE(
+          SPLIT( inside, ";" )
+        ),
+      ",")
+    ),
+    LAMBDA(cell,
+      IF(ISTEXT(cell),
+        IF(MID(cell,2,1)="=",
+          LAMBDA(fun, arg,
+            IFS(
+              fun="_X", _X(arg),
+              fun="_Y", _Y(arg),
+              fun="XY", XY(arg),
+              TRUE, cell
+            )
+          )(
+            MID(cell,3,2), MID(cell,6,2)
+          ),
+          MID(cell,2,LEN(cell)-2)
+        ),
+        cell
+      )
+    )
+  )
+)(
+  REGEXREPLACE(
+    REGEXREPLACE(G27,"^=",""),
+      "[{}]","")
+)
+
+// hell yeah, this works!
+=LAMBDA(inside,
+  ARRAYFORMULA(
+    SPLIT(
+      TRANSPOSE(
+        SPLIT( inside, ";" )
+      ),
+    ",")
+  )
+)(
+  REGEXREPLACE(G27,"[={}]","")
+)
+
+// huh, I get error: Nested array results are not supported!
+=LAMBDA(inside,
+  MAP(
+    TRANSPOSE(
+      SPLIT( inside, ";" )
+    ),
+    LAMBDA(rows, 
+      SPLIT(rows,",")
+    )
+  )
+)(
+  REGEXREPLACE(string,"[={}]","")
+)
+
+=LAMBDA(inside,
+  SPLIT(inside,",")
+)(
+  REGEXREPLACE(string,"[={}]","")
+)
+
+=SPLIT(REGEXREPLACE(G27,"[={}]",""),",")
 
 // ---------------------------------------------------------
 // _XY(x, y)
