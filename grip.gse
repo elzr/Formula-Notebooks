@@ -5,7 +5,9 @@
 * XY
   * _X, _Y
 * EVAL
+  * EVAL_EXPAND
 * QUOTE
+  * QUOTE_RANGE
 * RANGE_XY
   * RANGE_XY_REPLACE
 
@@ -76,9 +78,56 @@
   ))
 
 // ---------------------------------------------------------
+//QUOTE_RANGE
+//Transforms a range into array notation. See https://support.google.com/docs/answer/6208276?hl=en
+
+// works and it's formula aware!
+="{" & JOIN(";",
+  BYROW(range,
+    LAMBDA(row, 
+      REDUCE("",row,
+        LAMBDA(acc,cell,
+          IF(acc="","",(acc&",")) &
+          IF(ISFORMULA(cell),
+                FORMULATEXT(cell),
+                cell)
+        )
+      )
+    )
+  )
+) & "}"
+
+// core logic
+=REDUCE("",A1:B2,
+  LAMBDA(acc,cell,IF(acc="","",(acc&","))&cell)
+)
+
+// first stab
+// huh, this was wrong, it's `acc,cell`
+=REDUCE("={",A1:B2,
+  LAMBDA(cell,acc,acc&","&cell)
+)
+
+
+// ---------------------------------------------------------
 //QUOTE
-//A simulation of what QUOTE might be. Can only handle ranges as input for now.
-=FORMULATEXT(range)
+//A simulation of what QUOTE might be. Can handle ranges or strings in array notation.
+
+// very first stab, where it only handled formulas
+=IF(COLS(range) + ROWS(range) > 2,
+  QUOTE_RANGE(range),
+  IF(ISFORMULA(range),
+    FORMULATEXT(range),
+    range)
+)
+
+=IF(ISFORMULA(range),
+  FORMULATEXT(range),
+  QUOTE_RANGE(range)
+)
+
+// very first stab, where it only handled formulas
+=FORMULATEXT(range),
 
 // ---------------------------------------------------------
 //EVAL_EXPAND
