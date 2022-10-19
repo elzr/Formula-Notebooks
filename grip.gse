@@ -1,13 +1,13 @@
-// ---------------------------------------------------------
-// XY_ABS(x,y)
-// Return the value of the cell x columns right & y rows down from the top-left corner of the page. x & y can only be positive. Variant of XY.
+// Grip sheet: trying to get at homoiconicity in spreadsheets
+// https://docs.google.com/spreadsheets/d/1vnHb-nrlCclJjR5ezMrWqvKDLZntirPCG0-OFifGbeE/edit#gid=236523045
 
-=INDEX(BASE_SHEET(),y,x)
-
-=INDIRECT(
-  "R"& y &""&
-  "C"& x &"", 
-  FALSE)
+// Index
+* XY
+  * _X, _Y
+* EVAL
+* QUOTE
+* RANGE_XY
+  * RANGE_XY_REPLACE
 
 // ---------------------------------------------------------
 // _X(x)
@@ -81,9 +81,57 @@
 =FORMULATEXT(range)
 
 // ---------------------------------------------------------
+//EVAL_EXPAND
+//Expand array notation in a string into actual cells. Can handle normal arrangement by rows `{,,;,,;}` and by cols `{{;},{;}}`.
+=LAMBDA(str,
+  IF( REGEXMATCH(str, "},"),
+    ARRAYFORMULA(
+      TRANSPOSE(
+        SPLIT(
+          TRANSPOSE(
+              SPLIT(str, "},")
+            ),
+        ";")
+      )
+    ),
+    ARRAYFORMULA(
+      SPLIT(
+        TRANSPOSE(
+          SPLIT( str, ";" )
+        ),
+      ",")
+    )
+  )
+)(
+  REGEXREPLACE(array_notation,"(^=)|({)|(}?}$)","")
+)
+
+// ---------------------------------------------------------
 //EVAL
 //A simulation of what EVAL might be.
+=MAP( EVAL_EXPAND(quoted_range),
+    LAMBDA(cell,
+      IF(ISTEXT(cell),
+        IF(LEN(cell)<=1,
+          cell,
+          MID(cell,2,LEN(cell)-2)
+        ),
+        cell
+      )
+    )
+  )
 
+//This works, except I want the convenience of handling letters without quotes, like {A,B}
+=MAP( EVAL_EXPAND(quoted_range),
+    LAMBDA(cell,
+      IF(ISTEXT(cell),
+        MID(cell,2,LEN(cell)-2),
+        cell
+      )
+    )
+  )
+
+// This works, but can't handle nested {}
 =LAMBDA(inside,
   MAP(
     ARRAYFORMULA(
