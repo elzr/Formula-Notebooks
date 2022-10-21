@@ -11,6 +11,64 @@
 * RANGE_XY
   * RANGE_XY_REPLACE
 
+
+=RANGE_XY_REPLACE(
+  QUOTE_TO_ARRAY(range),
+  1,2,37)
+
+// ---------------------------------------------------------
+// QUOTE_TO_ARRAY
+=MAP( range,
+    LAMBDA(cell,
+      IF(ISTEXT(cell),
+        cell,
+        IF(ISFORMULA(cell),
+          FORMULATEXT(cell),
+          cell
+        )
+      )
+    )
+  )
+
+// ---------------------------------------------------------
+// COORD_X(coord, x)
+// Adds x to the x-part of the given {x,y} coord(inate)
+="{"&
+  (INDEX(EVAL_EXPAND(coord),,1)+x)&","&
+  INDEX(EVAL_EXPAND(coord),,2)&"}"
+
+// ---------------------------------------------------------
+// MAP_XY
+// Map an `xy` array notation into the given `domain`.
+=LAMBDA( domain, xy,
+  LAMBDA(x,y,
+    RANGE_XY(domain, x, y)
+  )(
+    INDEX(xy,,1),
+    INDEX(xy,,2)
+  )
+)(
+  domain_arg,
+  EVAL_EXPAND(xy_arg)
+)
+
+// ---------------------------------------------------------
+// ARRAY_TO_COORDS
+// Turn any array into an array of {x,y} coordinates
+
+=LAMBDA( array,
+  MAKEARRAY(ROWS(array),COLS(array),
+    LAMBDA(r,c,"{"&c&","&r&"}")
+  )
+)(array_arg)
+
+// This is wrong, because {x,y} coords are reverse of RC
+=LAMBDA( array,
+  MAKEARRAY(ROWS(array),COLS(array),
+    LAMBDA(r,c,"{"&r&","&c&"}")
+  )
+)(array_arg)
+
 // ---------------------------------------------------------
 // _X(x)
 // Move only horizontally from current cell, changing columns but staying in the same row. Leftwards is negative, rightwards is positive.
@@ -79,7 +137,7 @@
 
 // ---------------------------------------------------------
 //QUOTE_RANGE
-//Transforms a range into array notation. See https://support.google.com/docs/answer/6208276?hl=en
+//Transforms a range (or an array) into array notation. See https://support.google.com/docs/answer/6208276?hl=en
 
 // works and it's formula aware!
 ="{" & JOIN(";",
@@ -88,9 +146,11 @@
       REDUCE("",row,
         LAMBDA(acc,cell,
           IF(acc="","",(acc&",")) &
-          IF(ISFORMULA(cell),
+          IFERROR(
+            IF(ISFORMULA(cell),
                 FORMULATEXT(cell),
-                cell)
+                cell),
+            cell)
         )
       )
     )
@@ -159,28 +219,37 @@
 //EVAL
 //A simulation of what EVAL might be.
 
-=MAP( EVAL_EXPAND(quoted_range),
-  LAMBDA(cell,
-    IF(ISTEXT(cell),
-      IF(LEN(cell)<=1,
-        cell,
-        IF(LEFT(cell)="=",
-          LAMBDA(fun, arg,
-            IFS(
-              fun="_X", _X(arg),
-              fun="_Y", _Y(arg),
-              fun="XY", XY(arg),
-              TRUE, cell
-            )
-          )(
-            REGEXEXTRACT(cell,"^=([^(]+)"),
-            VALUE(REGEXEXTRACT(cell,"\(([^(]+)\)"))
+=LAMBDA(vals, coords,
+  MAP( coords,
+    LAMBDA(coord,
+      LAMBDA(val,
+        IF(ISTEXT(val),
+          IF(LEN(val)<=1,
+            val,
+            IF(LEFT(val)="=",
+              LAMBDA(fun, arg,
+                IFS(
+                  fun="_X", MAP_XY(vals, COORD_X(coord, arg)),
+                  fun="_Y", _Y(arg),
+                  fun="XY", XY(arg),
+                  TRUE, val
+                )
+              )(
+                REGEXEXTRACT(val,"^=([^(]+)"),
+                VALUE(REGEXEXTRACT(val,"\(([^(]+)\)"))
+              ),
+              val)
           ),
-          cell)
-      ),
-      cell
+          val
+        )
+      )(
+        MAP_XY(vals, coord)
+      )
     )
   )
+)(
+  EVAL_EXPAND(quoted_range),
+  ARRAY_TO_COORDS( EVAL_EXPAND(quoted_range) )
 )
 
 //before X interpretation!
