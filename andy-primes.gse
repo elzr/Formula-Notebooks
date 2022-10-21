@@ -1,0 +1,41 @@
+=ArrayFormula(IF(F3:3,
+  IF(range<>"",
+    MOD(range,F3:3),),
+  )
+)
+
+=ArrayFormula(IF(D4:D<>"",
+  IF(D4:D = C4:C,
+    D4:D,
+    ),
+  )
+)
+
+=MAP(range,
+  LAMBDA(n,
+    IF(n<>"",
+      INDEX(range,
+        MATCH(0,
+          INDIRECT("E"&ROW(n)&":"&ROW(n)),0)),
+    )
+  )
+)
+
+// ha, if I apply the filter I transform it from cell refs into values!
+=MAP(FILTER(range,range<>""),
+  LAMBDA(n,
+    "E"&ROW()&":"&ROW()
+  )
+)
+
+=MAP()
+  IF(C4:C<>"",
+    INDIRECT("E"&ROW()&":"&ROW()),))
+
+
+
+=ArrayFormula(
+  IF(C4:C<>"",
+    INDEX(range,
+      MATCH(0,
+        INDIRECT("E"&ROW()&":"&ROW()),1),1),))
