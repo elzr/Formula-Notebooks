@@ -1,5 +1,14 @@
 =ArrayFormula(IF(F3:3,
   IF(range<>"",
+      IF(range>=F3:3,
+        MOD(range,F3:3)
+      ,)
+    ,)
+  ,)
+)
+
+=ArrayFormula(IF(F3:3,
+  IF(range<>"",
     MOD(range,F3:3),),
   )
 )

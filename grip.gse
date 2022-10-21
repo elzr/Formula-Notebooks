@@ -158,12 +158,40 @@
 // ---------------------------------------------------------
 //EVAL
 //A simulation of what EVAL might be.
+
+=MAP( EVAL_EXPAND(quoted_range),
+  LAMBDA(cell,
+    IF(ISTEXT(cell),
+      IF(LEN(cell)<=1,
+        cell,
+        IF(LEFT(cell)="=",
+          LAMBDA(fun, arg,
+            IFS(
+              fun="_X", _X(arg),
+              fun="_Y", _Y(arg),
+              fun="XY", XY(arg),
+              TRUE, cell
+            )
+          )(
+            REGEXEXTRACT(cell,"^=([^(]+)"),
+            VALUE(REGEXEXTRACT(cell,"\(([^(]+)\)"))
+          ),
+          cell)
+      ),
+      cell
+    )
+  )
+)
+
+//before X interpretation!
 =MAP( EVAL_EXPAND(quoted_range),
     LAMBDA(cell,
       IF(ISTEXT(cell),
         IF(LEN(cell)<=1,
           cell,
-          MID(cell,2,LEN(cell)-2)
+          IF(LEFT(cell)=CHAR(34),
+            MID(cell,2,LEN(cell)-2),
+            cell)
         ),
         cell
       )
