@@ -6,12 +6,15 @@
   * _X, _Y
 * EVAL
   * EVAL_EXPAND
+  * MAP_VALS_COORDS
+    * MAP_XY
+      * COORD_X
 * QUOTE
   * QUOTE_RANGE
   * QUOTE_TO_ARRAY
 * ARRAY_XY
   * ARRAY_XY_REPLACE
-
+  * ARRAY_TO_COORDS
 
 // ---------------------------------------------------------
 // demos
@@ -100,6 +103,27 @@
 
 =INDEX(array,y,x)
 
+
+// ---------------------------------------------------------
+// MAP_VALS_COORDS(array, _lambda)
+// A normal map, except that as it threads array, _lambda has access to both values & coords ("{x,y}"")
+// array = Array to map. Notice that an array, is made of values, not cell references like a range.
+// _lambda_arg = Lambda that threads through the array receiving val & coord for each cell.
+=LAMBDA(vals, coords,
+  MAP( coords,
+    LAMBDA(coord,
+      LAMBDA(val,
+        _lambda(val, coord)
+      )(
+        MAP_XY(vals, coord)
+      )
+    )
+  )
+)(
+  array,
+  ARRAY_TO_COORDS(array)
+)
+
 // ---------------------------------------------------------
 // ARRAY_XY_REPLACE(array, x, y, replace)
 // Replace the cell that is at (x,y) in the given array.
@@ -107,6 +131,12 @@
 // x = 1-based, positive is rightwards, starts from top-corner.
 // y = 1-based, positive is downwards, starts from top corner.
 // replace = What to replace that position with.
+=MAP_VALS_COORDS(array, 
+  LAMBDA(val, coord,
+    IF(coord = "{"&x&","&y&"}",
+      replace,
+      val
+)))
 
 =LAMBDA(vals, coords,
   MAP( coords,
@@ -251,6 +281,55 @@
 // ---------------------------------------------------------
 //EVAL
 //A simulation of what EVAL might be.
+
+=MAP_VALS_COORDS(quoted_range, 
+  LAMBDA(val, coord,
+    IF(ISTEXT(val),
+      IF(LEFT(val)="=",
+        LAMBDA(fun, arg,
+          IFS(
+            fun="_X", MAP_XY(quoted_range, COORD_X(coord, arg)),
+            TRUE, val
+          )
+        )(
+          REGEXEXTRACT(val,"^=([^(]+)"),
+          VALUE(REGEXEXTRACT(val,"\(([^(]+)\)"))
+        ),
+        val),
+      val)))
+
+=LAMBDA(vals, coords,
+  MAP( coords,
+    LAMBDA(coord,
+      LAMBDA(val,
+        IF(ISTEXT(val),
+          IF(LEN(val)<=1,
+            val,
+            IF(LEFT(val)="=",
+              LAMBDA(fun, arg,
+                IFS(
+                  fun="_X", MAP_XY(vals, COORD_X(coord, arg)),
+                  fun="_Y", _Y(arg),
+                  fun="XY", XY(arg),
+                  TRUE, val
+                )
+              )(
+                REGEXEXTRACT(val,"^=([^(]+)"),
+                VALUE(REGEXEXTRACT(val,"\(([^(]+)\)"))
+              ),
+              val)
+          ),
+          val
+        )
+      )(
+        MAP_XY(vals, coord)
+      )
+    )
+  )
+)(
+  quoted_range,
+  ARRAY_TO_COORDS( quoted_range )
+)
 
 =LAMBDA(vals, coords,
   MAP( coords,
