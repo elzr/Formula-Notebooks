@@ -8,13 +8,19 @@
   * EVAL_EXPAND
 * QUOTE
   * QUOTE_RANGE
-* RANGE_XY
-  * RANGE_XY_REPLACE
+  * QUOTE_TO_ARRAY
+* ARRAY_XY
+  * ARRAY_XY_REPLACE
 
 
-=RANGE_XY_REPLACE(
-  QUOTE_TO_ARRAY(range),
-  1,2,37)
+// ---------------------------------------------------------
+// demos
+=EVAL(
+  ARRAY_XY_REPLACE(
+    QUOTE_TO_ARRAY(range),
+    1,2,
+    37)
+)
 
 // ---------------------------------------------------------
 // QUOTE_TO_ARRAY
@@ -86,14 +92,41 @@
 =_XY(0, y)
 
 // ---------------------------------------------------------
-// RANGE_XY(range, x, y)
-// Return the cell that is at (x,y) in the given range.
-// x & y are relative offsets.
-=INDEX(range,y,x)
+// ARRAY_XY(array, x, y)
+// Return the cell that is at (x,y) in the given array. x & y are relative offsets.
+// array = Given array
+// x = 1-based, positive is rightwards, starts from top-corner.
+// y = 1-based, positive is downwards, starts from top corner.
+
+=INDEX(array,y,x)
 
 // ---------------------------------------------------------
-// RANGE_XY_REPLACE(range, x, y, replace)
-// Replace the cell that is at (x,y) in the given range.
+// ARRAY_XY_REPLACE(array, x, y, replace)
+// Replace the cell that is at (x,y) in the given array.
+// Array = Given array.
+// x = 1-based, positive is rightwards, starts from top-corner.
+// y = 1-based, positive is downwards, starts from top corner.
+// replace = What to replace that position with.
+
+=LAMBDA(vals, coords,
+  MAP( coords,
+    LAMBDA(coord,
+      LAMBDA(val,
+        IF(coord = "{"&x&","&y&"}",
+          replace,
+          val
+        )
+      )(
+        MAP_XY(vals, coord)
+      )
+    )
+  )
+)(
+  array,
+  ARRAY_TO_COORDS(array)
+)
+
+// version just for ranges
 =MAP(range, LAMBDA(cell,
   LAMBDA(_x, _y,
     IF(AND(_x=x, _y=y),
@@ -247,6 +280,12 @@
       )
     )
   )
+)(
+  quoted_range,
+  ARRAY_TO_COORDS( quoted_range )
+)
+
+// I no longer need EVAL_EXPAND because what I mean by quoted has changed!
 )(
   EVAL_EXPAND(quoted_range),
   ARRAY_TO_COORDS( EVAL_EXPAND(quoted_range) )
