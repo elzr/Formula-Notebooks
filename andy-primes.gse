@@ -1,3 +1,18 @@
+
+=MAP(range,
+  LAMBDA(n,
+    IF(n<>"",
+      IFNA(
+        INDEX(range,
+          MATCH(0,
+            INDIRECT("F"&ROW(n)&":"&ROW(n)),0)),
+        n
+      ),
+    )
+  )
+)
+
+
 =ArrayFormula(IF(F3:3,
   IF(range<>"",
       IF(range>=F3:3,

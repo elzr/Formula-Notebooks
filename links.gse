@@ -3,6 +3,10 @@
 // https://docs.google.com/spreadsheets/d/13jOH1Mb-sU4w6Ame4_0J8qpvBMiCisSfz_I1ZCM3eKo/edit#gid=0
 
 
+https://twitter.com/prathyvsh/status/1162384931181305856
+
+= REGEXEXTRACT( , "^https://[^/]+/")
+
 = ArrayFormula(IF(C5:C<>"",
   REGEXREPLACE(
   REGEXREPLACE(

@@ -1,0 +1,51 @@
+
+# 1️⃣-mon
+# 2️⃣-tue
+# 3️⃣-wed
+# 4️⃣-thu
+# 5️⃣-fri
+# 6️⃣-sat
+# 7️⃣-sun
+
+// ---------------------------------------------------------
+//WEEK_TEMPLATE
+// Enter start date (assumed Monday) + boolean for if weeks stays within the same month. Out comes the markdown headers for a week.
+
+=LAMBDA(same_month,
+  JOIN("",MAP(weekCount,
+    LAMBDA(i,
+      INDEX(weekdayHeaders,i+1)&DAY(monday+i)&
+        IF(same_month,
+          "",
+          INDEX(months, MONTH(monday+i))
+        )&char(10)&"---"
+    )
+  ))
+)(
+  MONTH(monday) = MONTH(monday+6)
+)
+=INDEX(weekdayHeaders,WEEKDAY(C3,2))&DAY(C3)&
+  IF(E3,
+    "",
+    INDEX(months, MONTH(C3))
+  )&char(10)&"---"
+  
+=INDEX(weekdayHeaders,WEEKDAY(C3,2))&DAY(C3)&
+  IF(E3,
+    "",
+    INDEX(months, MONTH(C3))
+  )&char(10)&"---"
+
+// ---------------------------------------------------------
+//start-end
+=ARRAYFORMULA(LOWER(
+  IF(E3:E,
+    DAY(C3:C)&"-"&TO_TEXT(D3:D),
+    TO_TEXT(C3:C)&"-"&TO_TEXT(D3:D)
+)))
+
+=ARRAYFORMULA(LOWER(
+  IF(RIGHT(C3:C,3)=RIGHT(D3:D,3),
+    DAY(C3:C)&"-"&TO_TEXT(D3:D),
+    TO_TEXT(C3:C)&"-"&TO_TEXT(D3:D)
+)))
