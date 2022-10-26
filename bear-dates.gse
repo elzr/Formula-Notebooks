@@ -1,11 +1,14 @@
 
-# 1️⃣-mon
-# 2️⃣-tue
-# 3️⃣-wed
-# 4️⃣-thu
-# 5️⃣-fri
-# 6️⃣-sat
-# 7️⃣-sun
+// ---------------------------------------------------------
+//day pagination
+="<- "&F3&char(10)&
+ "-> "&F5&char(10)&
+  ("^[["&INDEX(months,MONTH(C4)) & $C$1 &"]]") &
+  IF(MONTH(C4) = MONTH(D4),
+    "",
+    " & [["&INDEX(months,MONTH(D4)) & $C$1 &"]]"
+ )&char(10)&
+ "---"
 
 // ---------------------------------------------------------
 //WEEK_TEMPLATE
@@ -18,12 +21,32 @@
         IF(same_month,
           "",
           INDEX(months, MONTH(monday+i))
-        )&char(10)&"---"
+        )&char(10)&"---"&char(10)&"‖"
     )
   ))
 )(
   MONTH(monday) = MONTH(monday+6)
 )
+
+// this fails because Sheets doesn't like mapping to different dimensions
+=LAMBDA(monday,
+  LAMBDA(same_month,
+    TRANSPOSE(MAP(weekCount,
+      LAMBDA(i,
+        INDEX(weekdayHeaders,i+1)&DAY(monday+i)&
+          IF(same_month,
+            "",
+            INDEX(months, MONTH(monday+i))
+          )&char(10)&"---"&char(10)
+      )
+    ))
+  )(
+    MONTH(monday) = MONTH(monday+6)
+  )
+)(
+  C3
+)
+
 =INDEX(weekdayHeaders,WEEKDAY(C3,2))&DAY(C3)&
   IF(E3,
     "",
