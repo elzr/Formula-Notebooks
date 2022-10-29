@@ -9,7 +9,7 @@
       ),
       IF(
         REGEXMATCH(JOIN("",ArrayFormula(IF(checkRow,"1","0"))), "10+1"),
-        INDEX(countRow, MATCH(TRUE,checkRow,-1)),
+        XLOOKUP(TRUE, checkRow, countRow,,,-1),
         checks
       )
     )
