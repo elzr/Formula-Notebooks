@@ -7,14 +7,23 @@
 =N("S.co")+AND(
   $D8="count",
   F$3<0,
-  COUNTIF($F7:F7, TRUE)>0
+  COUNTIF($F7:F7, TRUE)>0 
 )
 
 // S.ch: Since checks
 =N("S.ch")+AND(
-  $C9="check",
-  E$5<0,
-  COUNTIF($E9:E9, TRUE)>0
+  $D8="check",
+  F$3<0,
+  COUNTIF($F8:F8, TRUE)>0
+)
+
+// S.S.ch: Intermediate Since checks 
+// Between two Since checks.
+=N("S.S.ch")+AND(
+  $D8="check",
+  F$3<0,
+  COUNTIF($F8:F8, TRUE)>0,
+  COUNTIF(F8:8, TRUE)>0,
 )
 
 //Hide days that have no checks to the left and are in the past
