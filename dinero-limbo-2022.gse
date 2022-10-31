@@ -1,0 +1,49 @@
+=AND(C8<>"",C$7=$B$1)
+
+=AND(C8<>"",C$7=$B$1)
+
+=AND(C8<>"",C$7=$B$1)
+
+=AND(C8<>"",$C8<=$B$1)
+
+
+=AND(C8<>"",$A8<=$B$1, C$7>$B$1)
+
+
+=SUM(
+  LAMBDA( timeRows,
+    FILTER(timeRows,
+      COLUMN(timeRows)>timeStartCol+slider)
+  )(
+    FILTER(time, 
+      ROW(time)<timeStartRow+slider)
+  )
+
+
+=FILTER(time, 
+    COLUMN(time)>timeStartCol+slider)
+
+
+
+// ---------------------------------------------------------
+//Spent to pay
+=SUM(
+    MAP(time, LAMBDA(cell,
+      IF(
+        AND(
+          COLUMN(cell)>=timeStartCol+slider, 
+          ROW(cell)<timeStartRow+slider
+        ),
+        cell,
+      )
+    ))
+)
+
+// ---------------------------------------------------------
+
+
+=IF(A7<>"",
+  {
+    ARRAYFORMULA(IF(SEQUENCE(1,A7,0,0),,)),
+    SEQUENCE(1,12,monthlyDrop,0)
+  },)
