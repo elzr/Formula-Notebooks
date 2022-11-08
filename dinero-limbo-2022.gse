@@ -9,6 +9,14 @@
 
 =AND(C8<>"",$A8<=$B$1, C$7>$B$1)
 
+=IF(A8<>"", 
+  {
+    ARRAYFORMULA(IF(SEQUENCE(1,A8,0,0),,)),
+    SEQUENCE(1,12,monthlyDrop,0)
+  },)
+
+
+=AND($A8<>"",C$7=$B$1)
 
 =SUM(
   LAMBDA( timeRows,
@@ -40,10 +48,12 @@
 )
 
 // ---------------------------------------------------------
-
+// Placer of partialities
 
 =IF(A7<>"",
   {
     ARRAYFORMULA(IF(SEQUENCE(1,A7,0,0),,)),
     SEQUENCE(1,12,monthlyDrop,0)
   },)
+
+

@@ -1,0 +1,142 @@
+
+//IMPORTFEED Playground:
+// https://docs.google.com/spreadsheets/d/1cQMzFoyWTbRRTAf2egTftWPLj6OgnX2veEa-ETXhCqU/edit#gid=2012202824
+
+// Twitter Levelup sheet:
+// https://docs.google.com/spreadsheets/d/1lvCb2ePQAzfsKwKloTL1ZOBIaVNRqxN3wC29p5bNPe8/edit#gid=2141520088
+
+// Sorta inspired by this Ben L Collins thread:
+// https://twitter.com/benlcollins/status/1589708822893019137
+
+// ---------------------------------------------------------
+//TWEETS2TABLE( feed_url, tweet_count )
+// Transform tweets from rss.app feed urls into a simple 3 column table of tweet, author & date.
+//I wanted to keep it all in one function. But HYPERLINK doesn't survive the splitting so I need to re-process that!
+// I'm using unicode dashes in a funny way! 
+// ‖ to split columns
+// ┊ to split urlTitle
+// ┇ to split name from nickname
+
+=LAMBDA(feed_url, tweet_count,
+  LAMBDA(table,
+    {
+      INDEX(table,,1),
+      MAP(INDEX(table,,2),
+        LAMBDA(urlTitle,
+          HYPERLINK(
+            REGEXEXTRACT(urlTitle,"^(.*)┊"),
+            REGEXREPLACE(
+              REGEXEXTRACT(urlTitle,"┊(.*)$"),
+              "┇",CHAR(10))
+          ))),
+      INDEX(table,,3)
+    }
+  )(
+    ARRAYFORMULA(SPLIT(
+    BYROW(
+      IMPORTFEED(feed_url, , ,tweet_count),
+      LAMBDA(row,
+        LAMBDA(tweet, url, date, byline,
+          REGEXREPLACE(
+          REGEXREPLACE(
+            TRIM(tweet), 
+            "—.*",""),
+            "\s*$","") &"‖"& 
+          url &"┊"& 
+          REGEXREPLACE(
+          REGEXREPLACE(
+            byline, 
+            "\)[^)]+$",""),
+            "\(", "┇") &"‖"& 
+          REGEXREPLACE(date, " \d\d:.*$","")
+        )(
+          INDEX(row,,5),
+          INDEX(row,,3),
+          INDEX(row,,4),
+          IFNA(
+            REGEXEXTRACT(
+              INDEX(row,,5),
+              "— (.*)"),
+            INDEX(row,,2)
+          )
+        )
+      )
+    ),
+    "‖"))
+  )
+)(
+  feed_url_arg,
+  tweet_count_arg
+)
+
+// )(
+//   "https://rss.app/feeds/1JBx51EX9cpXkzlS.xml",
+//   20
+// )
+
+=LAMBDA(feed_url, tweet_count,
+  ARRAYFORMULA(SPLIT(
+    BYROW(
+      IMPORTFEED(feed_url, , ,tweet_count),
+      LAMBDA(row,
+        LAMBDA(tweet, url, byline,
+          tweet &"‖"& url &"‖"& byline
+        )(
+          INDEX(row,,1),
+          INDEX(row,,3),
+          REGEXEXTRACT(
+            INDEX(row,,5),
+            "—.*")
+        )
+      )
+    ),
+    "‖"))
+)(
+  "https://rss.app/feeds/1JBx51EX9cpXkzlS.xml",
+  5
+)
+
+// This doesn't work! It just leaves me with a HYPERLINK string!
+=LAMBDA(feed_url, tweet_count,
+  ARRAYFORMULA(SPLIT(
+    BYROW(
+      IMPORTFEED(feed_url, , ,tweet_count),
+      LAMBDA(row,
+        LAMBDA(tweet, url, byline,
+          tweet &"‖"&
+          "=HYPERLINK("&CHAR(34)&url&CHAR(34)&","&CHAR(34)&byline&CHAR(34)
+        )(
+          INDEX(row,,1),
+          INDEX(row,,3),
+          REGEXEXTRACT(
+            INDEX(row,,5),
+            "—.*")
+        )
+      )
+    ),
+    "‖"))
+)(
+  "https://rss.app/feeds/1JBx51EX9cpXkzlS.xml",
+  5
+)
+
+=BYROW(
+  IMPORTFEED("https://rss.app/feeds/1JBx51EX9cpXkzlS.xml", , ,3),
+  LAMBDA(row,
+    LAMBDA(tweet, url, byline,
+      tweet &"‖"& HYPERLINK(url, byline)
+    )(
+      INDEX(row,,1),
+      INDEX(row,,3),
+      REGEXEXTRACT(
+        INDEX(row,,5),
+        "—.*")
+    )
+  )
+)
+
+=IMPORTFEED("https://rss.app/feeds/1JBx51EX9cpXkzlS.xml", , ,10)
+=QUERY(
+  IMPORTFEED("https://rss.app/feeds/1JBx51EX9cpXkzlS.xml", , ,10),
+  "select Col5, Col4"
+)
