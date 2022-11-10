@@ -8,8 +8,30 @@
 // Sorta inspired by this Ben L Collins thread:
 // https://twitter.com/benlcollins/status/1589708822893019137
 
+
+=TWEETS_TO_TABLE(
+  XLOOKUP(B201,author_name,author_rss),
+  MIN(tweet_count+C201,max_count))
+
 // ---------------------------------------------------------
-//TWEETS2TABLE( feed_url, tweet_count )
+//TWEET_FORMAT(tweet)
+
+=LAMBDA(tweet,
+  REGEXREPLACE(
+  REGEXREPLACE(
+  REGEXREPLACE(
+  REGEXREPLACE(
+    TRIM(tweet),
+  "—.*",""),
+  "pic.twitter\S+","[🖼️]"),
+  "https://t.co\S+","[🔗]"),
+  "@(\w+)","🌀[$1]")
+)(
+  B28
+)
+
+// ---------------------------------------------------------
+//TWEETS_TO_TABLE( feed_url, tweet_count )
 // Transform tweets from rss.app feed urls into a simple 3 column table of tweet, author & date.
 //I wanted to keep it all in one function. But HYPERLINK doesn't survive the splitting so I need to re-process that!
 // I'm using unicode dashes in a funny way! 
@@ -38,9 +60,7 @@
       LAMBDA(row,
         LAMBDA(tweet, url, date, byline,
           REGEXREPLACE(
-          REGEXREPLACE(
-            TRIM(tweet), 
-            "—.*",""),
+            TWEET_FORMAT(tweet), 
             "\s*$","") &"‖"& 
           url &"┊"& 
           REGEXREPLACE(

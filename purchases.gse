@@ -1,0 +1,78 @@
+
+// ---------------------------------------------------------
+// Linking
+=ArrayFormula(IF(B5:B<>"",
+  HYPERLINK(B5:B,IF(REGEXMATCH(B5:B,"com.mx"),"🇲🇽","🇺🇸")),)
+)
+
+=ArrayFormula(IF(B5:B<>"",
+  HYPERLINK(
+    REGEXREPLACE(
+    REGEXREPLACE(
+    REGEXREPLACE(
+      IF(REGEXMATCH(B5:B, "\.com\.mx"),
+        REGEXREPLACE(B5:B, "\.com\.mx", ".com"),
+        REGEXREPLACE(B5:B, "\.com",     ".com.mx")),
+    "www\.",""),
+    "\?[^\?]+$",""),
+    "/ref=[^&]+$","/"),
+    IF(REGEXMATCH(B5:B,"com.mx"),"🇺🇸","🇲🇽"))
+  ,))
+
+=ArrayFormula(IF(J5:J<>"",
+  REGEXREPLACE(
+  REGEXREPLACE(
+  REGEXREPLACE(
+    IF(REGEXMATCH(J5:J, "\.com\.mx"),
+      REGEXREPLACE(J5:J, "\.com\.mx", ".com"),
+      REGEXREPLACE(J5:J, "\.com",     ".com.mx")),
+  "www\.",""),
+  "\?[^\?]+$",""),
+  "/ref=[^&]+$","/"),
+))
+
+// ---------------------------------------------------------
+// BOOK_INFO
+// Given a raw copy-paste from the Amazon's book header, extract its author, title, subtitle, edition type & published date
+
+=LAMBDA(raw,
+  SPLIT(
+      LAMBDA(title, duraBlanda, published, authors,
+        REGEXREPLACE(
+        REGEXREPLACE(
+          authors, 
+          "\([^)]+\)",""),
+          "\s+,", ",")  &"‖"&
+        REGEXREPLACE(
+        REGEXREPLACE(
+          title & IF(REGEXMATCH(title, ":"),"",":--"),
+          ":", "‖"),
+          "\([^)]+\)","") &"‖"&
+        REGEXREPLACE(duraBlanda,"Pasta","") &"‖"&
+        REGEXEXTRACT(published, "\d\d\d\d")
+    )(
+      REGEXEXTRACT(raw,"(^.*?)(?:Hardcover|Paperback|Pasta|\n)"),
+      IFERROR(REGEXEXTRACT(raw,"Hardcover|Paperback|Pasta dura|Pasta blanda"),"--"),
+      IFERROR(REGEXEXTRACT(raw,"– (.+)\n"),"2022"),
+      REGEXEXTRACT(TRIM(raw),"(?:por|by) (.+)$")
+    ), "‖"))( raw_arg )
+
+=LAMBDA(raw,
+  SPLIT(
+      LAMBDA(title, duraBlanda, published, authors,
+        REGEXREPLACE(
+        REGEXREPLACE(
+          authors, 
+          "\([^)]+\)",""),
+          "\s+,", ",")  &"‖"&
+        REGEXREPLACE(
+          title & IF(REGEXMATCH(title, ":|\."),"",":--"),
+          ":|\.", "‖") &"‖"&
+        duraBlanda &"‖"&
+        REGEXREPLACE(published, "^[^,]+,","")
+    )(
+      REGEXEXTRACT(raw,"(^.*)Pasta"),
+      REGEXEXTRACT(raw,"Pasta (\w+)"),
+      REGEXEXTRACT(raw,"– (.+)\n"),
+      REGEXEXTRACT(TRIM(raw),"por (.+)$")
+    ), "‖"))( raw_arg )
