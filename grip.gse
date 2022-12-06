@@ -9,6 +9,7 @@
   * MAP_VALS_COORDS
     * MAP_XY
       * COORD_X
+      * COORD_Y
 * QUOTE
   * QUOTE_RANGE
   * QUOTE_TO_ARRAY
@@ -26,6 +27,7 @@
 )
 
 // ---------------------------------------------------------
+// QUOTE: The main quote. Replaces formulas with formulatext.
 // QUOTE_TO_ARRAY
 =MAP( range,
     LAMBDA(cell,
@@ -38,6 +40,17 @@
       )
     )
   )
+
+// ---------------------------------------------------------
+// COORD_Y(coord, y)
+// Adds y to the y-part of the given {x,y} coord(inate).
+// Given {x,y} coord(inate
+// {1,1}
+// Positive/negative number to add to the x-part
+// -1
+="{"&
+  (INDEX(EVAL_EXPAND(coord),,1))&","&
+  (INDEX(EVAL_EXPAND(coord),,2)+y)&"}"
 
 // ---------------------------------------------------------
 // COORD_X(coord, x)
@@ -107,7 +120,7 @@
 // ---------------------------------------------------------
 // MAP_VALS_COORDS(array, _lambda)
 // A normal map, except that as it threads array, _lambda has access to both values & coords ("{x,y}"")
-// array = Array to map. Notice that an array, is made of values, not cell references like a range.
+// array = Array to map. Notice that an array is made of values, not cell references like a range.
 // _lambda_arg = Lambda that threads through the array receiving val & coord for each cell.
 =LAMBDA(vals, coords,
   MAP( coords,
@@ -125,12 +138,29 @@
 )
 
 // ---------------------------------------------------------
-// ARRAY_XY_REPLACE(array, x, y, replace)
+// XY_SUB(array, xy_coord, sub)
+// Substitute the cell that is at xy_coord {x,y} in the given array with the given substitute.
+
+=MAP_VALS_COORDS(array, 
+  LAMBDA(val, coord,
+    LAMBDA(x, y,
+      IF(coord = "{"& x &","& y &"}",
+        sub,
+        val)
+    )(
+      INDEX(xy_coord,,1),
+      INDEX(xy_coord,,2)
+    )    
+))
+
+// ---------------------------------------------------------
+// XY_REPLACE(array, x, y, replace)
 // Replace the cell that is at (x,y) in the given array.
 // Array = Given array.
 // x = 1-based, positive is rightwards, starts from top-corner.
 // y = 1-based, positive is downwards, starts from top corner.
 // replace = What to replace that position with.
+
 =MAP_VALS_COORDS(array, 
   LAMBDA(val, coord,
     IF(coord = "{"&x&","&y&"}",
@@ -281,6 +311,23 @@
 // ---------------------------------------------------------
 //EVAL
 //A simulation of what EVAL might be.
+
+=MAP_VALS_COORDS(quoted_range, 
+  LAMBDA(val, coord,
+    IF(ISTEXT(val),
+      IF(LEFT(val)="=",
+        LAMBDA(fun, arg,
+          IFS(
+            fun="_X", MAP_XY(quoted_range, COORD_X(coord, arg)),
+            fun="_Y", MAP_XY(quoted_range, COORD_Y(coord, arg)),
+            TRUE, val
+          )
+        )(
+          REGEXEXTRACT(val,"^=([^(]+)"),
+          VALUE(REGEXEXTRACT(val,"\(([^(]+)\)"))
+        ),
+        val),
+      val)))
 
 =MAP_VALS_COORDS(quoted_range, 
   LAMBDA(val, coord,
@@ -495,4 +542,9 @@
 // x = Column index. 1, COL(rowLabelCol)
 // y = Row index. 1, 2
 
+=INDEX(basic!$1:$9994,ROW()+y,COLUMN()+x)
+
+=INDIRECT("R["& row &"]C["& col &"]", FALSE)
+
 =INDIRECT("R["& y &"]C["& x &"]", FALSE)
+

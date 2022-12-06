@@ -1,0 +1,56 @@
+
+// ---------------------------------------------------------
+// STEP(cell_ref, value)
+// Apply one step in Conway's Game of Life to the given cell reference.
+
+=LAMBDA( self, sum,
+  IF(self=1,
+    IF(OR(sum=2, sum=3), 
+      1,),
+    IF(sum=3,
+      1,)
+  )
+)(
+  cell_ref,
+  HOOD_SUM(cell_ref)
+)
+
+// ---------------------------------------------------------
+// HOOD_SUM
+// Sum of the Moore neighborhood of the given cell reference.
+
+= XY_REF(cell_ref, -1,  -1)+
+  XY_REF(cell_ref,  0,  -1)+
+  XY_REF(cell_ref,  1,  -1)+
+  XY_REF(cell_ref, -1,   0)+
+  XY_REF(cell_ref,  0,   1)+
+  XY_REF(cell_ref, -1,   1)+
+  XY_REF(cell_ref,  1,   0)+
+  XY_REF(cell_ref,  1,   1)
+
+// ---------------------------------------------------------
+// XY(x, y)
+// Current cell is (0,0). Leftwards is negative, rightwards is positive. Upwards is negative, downwards is positive. Out of bonds is 0.
+=IFERROR(
+  INDIRECT("R["& y &"]C["& x &"]", FALSE), 
+  0)
+
+// ---------------------------------------------------------
+// XY_REF(cell_ref, x, y)
+// Move from the given cell reference. Leftwards is negative, rightwards is positive. Upwards is negative, downwards is positive. Out of bounds returns 0.
+
+=LAMBDA(cell_ref, x, y,
+  INDIRECT(
+    "R"& (ROW(cell_ref)+y) &
+    "C"& (COLUMN(cell_ref)+x), 
+    FALSE)
+)(
+  C14,
+  0,
+  1
+)
+
+=INDIRECT(
+  "R"& (ROW(cell_ref)+y) &
+  "C"& (COLUMN(cell_ref)+x), 
+  FALSE)
