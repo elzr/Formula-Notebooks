@@ -1,0 +1,14 @@
+
+
+
+=SORT(
+  {
+    iferror(filter($A$50:$A$88, $D$50:$D$88 = A95));
+    iferror(filter($A$50:$A$88, $E$50:$E$88 = A95)); 
+    iferror(filter($A$50:$A$88, $F$50:$F$88 = A95)); 
+    iferror(filter($A$50:$A$88, $G$50:$G$88 = A95));
+    iferror(filter($A$50:$A$88, $H$50:$H$88 = A95))
+  })
+
+
+

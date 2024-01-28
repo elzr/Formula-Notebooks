@@ -1,0 +1,59 @@
+
+
+2023 by day - Monday
+https://docs.google.com/spreadsheets/d/1E0h9BAip1ItlP1REC5Yr8e1HLEtIyPmQHvrxIXDPW5k/edit
+
+2023 by day - Sunday
+https://docs.google.com/spreadsheets/d/1AO3kCgNZiQNIgSw0rlW4Zuwql_dYRTLFHM0XLq6YqdQ/copy
+
+// ---------------------------------------------------------
+=AND(I4<>"",I4<=$Z$11)
+=AND(I4<>"",sunday>=today,monday<=today)
+=AND(I4<>"",I4>=$Z$11,C4<=$Z$11)
+
+// ---------------------------------------------------------
+// Cell agglomeration condformat
+
+COL(cell) - COL(corner) //colIndex
+ROW(cell) - ROW(corner) //rowIndex
+
+IF(MOD(colIndex, 2) = 1, -1, 0) //colDelta
+
+
+// ---------------------------------------------------------
+// WEEK_DAYS
+// Given a date, it returns the week row, the next 7 dates.
+// Adapted for a different layout.
+
+=LAMBDA(start, 
+  {
+    start,"",
+    start+1,"",
+    start+2,"",
+    start+3,"",
+    start+4,"",
+    start+5,"",
+    start+6
+  })(A3)
+
+// ---------------------------------------------------------
+// WEEK_DAYS
+// Given a date, it returns the week row, the next 7 dates.
+
+=LAMBDA(start, 
+  {
+    start,
+    start+1,
+    start+2,
+    start+3,
+    start+4,
+    start+5,
+    start+6
+  })()
+
+// ---------------------------------------------------------
+// Condformat to translate row to column
+  =NOT(
+    INDIRECT(
+      "R"&((ROW($K$5)+2)+(COL(D$5) - COL($D$5)) )&
+      "C"&COL($K5), FALSE))

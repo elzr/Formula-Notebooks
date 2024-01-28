@@ -1,0 +1,20 @@
+
+
+
+=LAMBDA(y,m, 
+  IF(isCurrentMonth,
+    DATE(y,m,C6),
+    IF(DATE(y,m,C6)<TODAY(),
+      DATE(y,m+1,C6),
+      DATE(y,m,C6))))
+  (YEAR(NOW()), MONTH(NOW()))
+
+=LAMBDA(y,m, 
+  IF(DATE(y,m,C6)<TODAY(),
+    DATE(y,m+1,C6),
+    DATE(y,m,C6)))
+  (YEAR(NOW()), MONTH(NOW()))
+
+=IF(DATE(YEAR(NOW()), MONTH(NOW()), C6)<TODAY(),
+  DATE(YEAR(NOW()), MONTH(NOW())+1, C6),
+  DATE(YEAR(NOW()), MONTH(NOW()), C6))

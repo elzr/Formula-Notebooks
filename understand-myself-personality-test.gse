@@ -1,0 +1,45 @@
+IF(C2>1%)
+
+
+
+// LABEL
+=LAMBDA(x,
+  IF( x<=1, "ultra low",
+    IF( x<=10, "very low",
+      IF( x<=20,  "low",
+        IF( x<=40,  "tad low",
+          IF( x<=60,  "typical",
+            IF( x<=80,  "tad high",
+              IF( x<=90,  "high",
+                IF( x<=99,  "very high",
+                  "ultra high"
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)(W32*100)
+
+
+=LAMBDA(x,
+  IF( x<=1, "ultra low",
+    IF( x<=10, "very low",
+      IF( x<=20,  "low",
+        IF( x<=40,  "tad low",
+          IF( x<=60,  "typical",
+            IF( x<=80,  "tad high",
+              IF( x<=90,  "high",
+                IF( x<=99,  "very high",
+                  "ultra high"
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)(W32*100)

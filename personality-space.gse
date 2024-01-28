@@ -1,0 +1,20 @@
+
+
+=ArrayFormula(
+  IF(types<>"",
+    IF(REGEXMATCH(types, "[?]"),
+      REGEXREPLACE(types, "[^?]",),
+      VLOOKUP(types,typeToAdvice,HLOOKUP(G1,keywordToArticle,2,0),0)
+    ),))
+
+
+=ArrayFormula(
+  IF(types<>"",
+    IF(REGEXMATCH(types, "[?]"),
+      REGEXREPLACE(types, "[^?]",),
+      LAMBDA(desc,
+        IF(ISNUMBER(cut),
+          MID(desc,1,cut)&"...",
+          desc))(
+        VLOOKUP(types,typeToAdvice,HLOOKUP(P1,keywordToArticle,2,0),0) )
+    ),))

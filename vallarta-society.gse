@@ -1,0 +1,141 @@
+//conditional formatting
+
+=INDIRECT(
+  "R"&ROW($A1)&"C"&COLUMN(A1)&
+  ":"&"R"&ROW(A1)&"C"&COLUMN(A1)&":")
+
+//------
+
+=IFERROR(
+  FILTER(
+    VLOOKUP(
+      A2:A & C2:C & G2:G, 
+      { google_analytics!A2:A &
+        google_analytics!B2:B &
+        google_analytics!C2:C,
+        google_analytics!D2:E
+      }, 
+      {2,3}, 
+      FALSE
+    ), 
+      A2:A<>""
+    )
+  )
+
+// EXCEPT_COL
+//Get all columns of a range, except which_col
+=LAMBDA(range, which_col,
+  FILTER(range, 
+    BYCOL(range,LAMBDA(col, 
+      COLUMN(col)-COLUMN(INDEX(range,1,1))+1 <> which_col)
+    ))
+)(range_arg, which_col_arg)
+
+// EXCEPT_COL
+=MAP(range, LAMBDA(cell, ))
+
+
+=FILTER(
+  LEFT_JOIN(F2:H20,users,1,1)
+  {0,0,0,1})
+
+// LEFT_JOIN
+// left_arg, right_arg
+// on_left_arg, on_right_arg
+=LAMBDA(left, right, on_left, on_right,
+  LAMBDA(left_key, right_key,
+    {
+      left,
+      MAP(left_key, LAMBDA(left_cell,
+        IF( ISBLANK(left_cell),,
+          INDEX(
+            EXCEPT_COL( right,  on_right ),
+            MATCH(left_cell, right_key,0)
+          )
+        )
+      ))
+    }
+  )(
+    INDEX(left,,on_left),
+    INDEX(right,,on_right)
+  )
+)(left_arg, right_arg, on_left_arg, on_right_arg)
+
+=LAMBDA(left, right, on_left, on_right,
+  LAMBDA(left_key, right_key,
+    {
+      left,
+      EXCEPT_COL(
+        MAP(left_key, LAMBDA(left_row,
+          INDEX(right, MATCH(left_row, right_key,0))
+        )),
+        right_key
+      )
+    }
+  )(
+    INDEX(left,,on_left),
+    INDEX(right,,on_right)
+  )
+)(left_range, right_range, 1, 1)
+
+
+=LAMBDA(left, right, on_left, on_right,
+  LAMBDA(left_key, right_key,
+    {
+      left,
+      EXCEPT_COL(
+        MAP(left_key, LAMBDA(left_row,
+          INDEX(MATCH(left_row, right_key), right,0)
+        )),
+        right_key
+      )
+    }
+  )(
+    INDEX(left,,on_left),
+    INDEX(right,,on_right)
+  )
+)(left_range, right_range, 1, 1)
+
+=LAMBDA(left, right, on_left, on_right,
+  LAMBDA(left_key, right_key,
+    {
+      left,
+      MAP(left_key, LAMBDA(left_row,
+        INDEX(MATCH(left_row, right_key), right)
+      ))
+    }
+  )(
+    INDEX(left,,on_left),
+    INDEX(right,,on_right)
+  )
+)(left_range, right_range, 1, 1)
+
+=LAMBDA(left, right, on_left, on_right,
+  LAMBDA(left_key, right_key,
+    ArrayFormula(
+    {
+      left,
+      VLOOKUP( left_key, right_key, 2 )
+    })
+  )(
+    INDEX(left,,on_left),
+    INDEX(right,,on_right)
+  )
+)(left_range, right_range, 1, 1)
+
+=LAMBDA(left, right, on_left, on_right,
+  LAMBDA(left_key, right_key,
+    ArrayFormula(
+    {
+      left_key,
+      vlookup(
+        left_key,
+        right_key,
+        COLUMN(Indirect("R1C2:R1C"&COLUMNS(right_key),0)),
+        0)
+    }
+  ))(
+    INDEX(left,,on_left),
+    INDEX(right,,on_right)
+  )
+)(left_arg, right_arg, on_left_arg, on_right_arg)
