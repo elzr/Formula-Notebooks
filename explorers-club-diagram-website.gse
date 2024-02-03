@@ -1,0 +1,100 @@
+
+=ADDRESS(2,2,4,true,"📇 Card Index")
+
+MOD(ROW()-3,5)*21
+
+=REGEXEXTRACT(AO2,"^\w+'s")
+
+
+={INDIRECT(REGEXEXTRACT(name,"^\w+'s")&"!"&range)}
+
+={'Eli''s'!D3:D214}
+
+
+STARRED_NAME_RANGE
+
+=ArrayFormula(SUBSTITUTE(SUBSTITUTE(NAME_RANGE(name,range),true,"★"),false,""))
+
+=ArrayFormula(
+  IF(AI3:AI<>"",
+    {
+      HYPERLINK(AI3:AI,"R"),
+      HYPERLINK(AJ3:AJ,"H"),
+      HYPERLINK(AK3:AK,"X"),
+      HYPERLINK(AL3:AL,"W"),
+      HYPERLINK(AM3:AM,"A")
+    },)
+)
+
+
+=FILTER(theIndexNoNotes, {1,0,0,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1})
+=FILTER(FILTER(simpleIndex,simpleIndex!A4:A=U3),simpleIndex!1:1)
+
+
+//THE_INDEX
+//col, row
+// =LAMBDA(col, row,
+//   INDIRECT(
+//       theIndexTab&"!"&
+//       IFS(
+//         col="name",    "G",
+//         col="creator", "Z",
+//         col="title",   "D",
+//         col="tag1",    "K",
+//         col="tag2",    "L",
+//         col="tag3",    "M",
+//         col="link",    "Y",
+//         col="url",     "H"
+//       )&row)
+// )("name", 17)
+
+=INDIRECT(
+    theIndexTab&"!"&
+    IFS(
+      col="name",    "G",
+      col="creator", "Z",
+      col="title",   "D",
+      col="tag1",    "K",
+      col="tag2",    "L",
+      col="tag3",    "M",
+      col="link",    "Y",
+      col="started", "AA",
+      col="url",     "H"
+    )&(row+2))
+
+//XY_TO_Y
+//Take the current position of the cell to obtain a row in The Index.
+//Cell height: 16
+//Cell width: 21
+//
+=MOD((ROW()-2), 13)*5 + MOD(COLUMN()-1, 21)
+
+// FAVICONS
+row
+=ArrayFormula(IF(row<>"",IMAGE(imageUrl&row&"/icon.png",4,25,25),))
+=ArrayFormula(IF(G3:G<>"",IMAGE(imageUrl&G3:G&"/icon.png",4,25,25),))
+
+//SCREENSHOTS
+=ArrayFormula(IF(G3:G<>"",HYPERLINK(imageUrl&G3:G&"/page.jpeg",IMAGE(imageUrl&G3:G&"/page.jpeg",4,50,90)),))
+
+
+=IFNA(
+    ARRAYFORMULA(
+      SUBSTITUTE(
+      SUBSTITUTE(
+        QUERY(theIndex,lib!B34),
+      TRUE, "⭐️"),
+      FALSE, ))
+  ,)
+
+
+  =ArrayFormula(
+    HYPERLINK(
+      H3:H, 
+      REGEXREPLACE(
+      REGEXREPLACE(
+      REGEXREPLACE(H3:H, 
+        "^https?:\/\/(www\.)?",""), 
+        "\/$",""),
+        "\/"," / ")
+    ))

@@ -1,6 +1,25 @@
 IF(C2>1%)
 
 
+=LAMBDA(x,
+  IF( x<=1, "ultra bajo",
+    IF( x<=10, "super bajo",
+      IF( x<=20,  "bajo",
+        IF( x<=40,  "algo bajo",
+          IF( x<=60,  "típico",
+            IF( x<=80,  "algo alto",
+              IF( x<=90,  "alto",
+                IF( x<=99,  "super alto",
+                  "ultra alto"
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)(percentage*100)
 
 // LABEL
 =LAMBDA(x,
@@ -21,7 +40,7 @@ IF(C2>1%)
       )
     )
   )
-)(W32*100)
+)(percentage*100)
 
 
 =LAMBDA(x,
